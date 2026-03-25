@@ -52,8 +52,9 @@ export async function POST(request: NextRequest) {
 
   try {
     const blob = await put(`artikel/${file.name}`, file, {
-      access: "public",
+      access: "private",
       addRandomSuffix: true,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     });
 
     return NextResponse.json({ url: blob.url });
@@ -78,7 +79,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "URL fehlt" }, { status: 400 });
     }
 
-    await del(url);
+    await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error("Blob delete failed:", e);
