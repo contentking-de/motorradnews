@@ -1,0 +1,234 @@
+"use client";
+
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import Image from "@tiptap/extension-image";
+import Placeholder from "@tiptap/extension-placeholder";
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Quote,
+  Link as LinkIcon,
+  Image as ImageIcon,
+} from "lucide-react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
+
+function parseContent(json: string): Record<string, unknown> {
+  if (!json || json.trim() === "") {
+    return { type: "doc", content: [] };
+  }
+  try {
+    const parsed = JSON.parse(json) as unknown;
+    if (parsed && typeof parsed === "object") {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    /* leerer Editor */
+  }
+  return { type: "doc", content: [] };
+}
+
+interface ArticleEditorProps {
+  content: string;
+  onChange: (json: string) => void;
+  className?: string;
+}
+
+export function ArticleEditor({ content, onChange, className }: ArticleEditorProps) {
+  const lastEmitted = useRef<string | null>(null);
+
+  const editor = useEditor({
+    immediatelyRender: false,
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [2, 3] },
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: "text-[#E31E24] underline underline-offset-2",
+        },
+      }),
+      Image.configure({
+        HTMLAttributes: {
+          class: "rounded-lg max-w-full h-auto my-4",
+        },
+      }),
+      Placeholder.configure({
+        placeholder: "Artikel hier verfassen...",
+      }),
+    ],
+    content: parseContent(content),
+    editorProps: {
+      attributes: {
+        class:
+          "prose prose-sm max-w-none min-h-[320px] px-4 py-3 focus:outline-none text-[#111111] [&_p.is-editor-empty:first-child::before]:text-[#999999]",
+      },
+    },
+    onUpdate: ({ editor: ed }) => {
+      const json = JSON.stringify(ed.getJSON());
+      lastEmitted.current = json;
+      onChange(json);
+    },
+  });
+
+  useEffect(() => {
+    if (!editor) return;
+    if (content === lastEmitted.current) return;
+    const doc = parseContent(content);
+    const next = JSON.stringify(doc);
+    const current = JSON.stringify(editor.getJSON());
+    if (next !== current) {
+      editor.commands.setContent(doc, { emitUpdate: false });
+      lastEmitted.current = content;
+    }
+  }, [content, editor]);
+
+  const setLink = useCallback(() => {
+    if (!editor) return;
+    const previous = editor.getAttributes("link").href as string | undefined;
+    const url = window.prompt("URL verknüpfen", previous ?? "https://");
+    if (url === null) return;
+    if (url === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
+      return;
+    }
+    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
+  }, [editor]);
+
+  const addImage = useCallback(() => {
+    if (!editor) return;
+    const url = window.prompt("Bild-URL", "https://");
+    if (!url) return;
+    editor.chain().focus().setImage({ src: url }).run();
+  }, [editor]);
+
+  if (!editor) {
+    return (
+      <div
+        className={cn(
+          "min-h-[360px] rounded-lg border border-[#E5E5E5] bg-white animate-pulse",
+          className
+        )}
+        aria-hidden
+      />
+    );
+  }
+
+  const ToolBtn = ({
+    active,
+    onClick,
+    label,
+    children,
+  }: {
+    active: boolean;
+    onClick: () => void;
+    label: string;
+    children: ReactNode;
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={cn(
+        "rounded-md p-2 transition-colors",
+        active
+          ? "bg-[#E31E24] text-white"
+          : "text-[#111111] hover:bg-black/[0.06]"
+      )}
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <div className={cn("rounded-lg border border-[#E5E5E5] overflow-hidden bg-white", className)}>
+      <div
+        className="flex flex-wrap items-center gap-0.5 border-b border-[#E5E5E5] bg-[#F9F9F9] px-2 py-1.5"
+        role="toolbar"
+        aria-label="Formatierung"
+      >
+        <ToolBtn
+          label="Fett"
+          active={editor.isActive("bold")}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+        >
+          <Bold className="h-4 w-4" />
+        </ToolBtn>
+        <ToolBtn
+          label="Kursiv"
+          active={editor.isActive("italic")}
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+        >
+          <Italic className="h-4 w-4" />
+        </ToolBtn>
+        <ToolBtn
+          label="Unterstrichen"
+          active={editor.isActive("underline")}
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+        >
+          <UnderlineIcon className="h-4 w-4" />
+        </ToolBtn>
+        <span className="mx-1 h-6 w-px bg-[#E5E5E5]" aria-hidden />
+        <ToolBtn
+          label="Überschrift 2"
+          active={editor.isActive("heading", { level: 2 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+        >
+          <Heading2 className="h-4 w-4" />
+        </ToolBtn>
+        <ToolBtn
+          label="Überschrift 3"
+          active={editor.isActive("heading", { level: 3 })}
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+        >
+          <Heading3 className="h-4 w-4" />
+        </ToolBtn>
+        <span className="mx-1 h-6 w-px bg-[#E5E5E5]" aria-hidden />
+        <ToolBtn
+          label="Aufzählungsliste"
+          active={editor.isActive("bulletList")}
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+        >
+          <List className="h-4 w-4" />
+        </ToolBtn>
+        <ToolBtn
+          label="Nummerierte Liste"
+          active={editor.isActive("orderedList")}
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        >
+          <ListOrdered className="h-4 w-4" />
+        </ToolBtn>
+        <ToolBtn
+          label="Zitat"
+          active={editor.isActive("blockquote")}
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+        >
+          <Quote className="h-4 w-4" />
+        </ToolBtn>
+        <span className="mx-1 h-6 w-px bg-[#E5E5E5]" aria-hidden />
+        <ToolBtn
+          label="Link"
+          active={editor.isActive("link")}
+          onClick={setLink}
+        >
+          <LinkIcon className="h-4 w-4" />
+        </ToolBtn>
+        <ToolBtn label="Bild einfügen" active={false} onClick={addImage}>
+          <ImageIcon className="h-4 w-4" />
+        </ToolBtn>
+      </div>
+      <EditorContent editor={editor} />
+    </div>
+  );
+}

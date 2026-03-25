@@ -1,0 +1,178 @@
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
+import { NextResponse, NextRequest } from "next/server";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
+
+const userRoleSchema = z.enum(["ADMIN", "EDITOR"]);
+
+const createUserSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email().max(255),
+  password: z.string().min(8).max(128),
+  role: userRoleSchema.optional().default("EDITOR"),
+  isActive: z.boolean().optional().default(true),
+  avatarUrl: z.string().nullable().optional(),
+});
+
+const updateUserSchema = z.object({
+  id: z.string().uuid(),
+  role: userRoleSchema.optional(),
+  isActive: z.boolean().optional(),
+});
+
+function toPublicUser(row: typeof users.$inferSelect) {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    role: row.role,
+    avatarUrl: row.avatarUrl,
+    isActive: row.isActive,
+    createdAt: row.createdAt,
+  };
+}
+
+export async function GET() {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  try {
+    const rows = await db.select().from(users);
+    return NextResponse.json(rows.map(toPublicUser));
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      { error: "Fehler beim Laden der Benutzer" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Ungültiger JSON-Body" }, { status: 400 });
+  }
+
+  const parsed = createUserSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validierung fehlgeschlagen", details: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  const data = parsed.data;
+
+  try {
+    const passwordHash = await bcrypt.hash(data.password, 12);
+
+    const [created] = await db
+      .insert(users)
+      .values({
+        name: data.name,
+        email: data.email,
+        passwordHash,
+        role: data.role,
+        isActive: data.isActive,
+        avatarUrl: data.avatarUrl ?? null,
+      })
+      .returning();
+
+    if (!created) {
+      return NextResponse.json(
+        { error: "Benutzer konnte nicht erstellt werden" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(toPublicUser(created), { status: 201 });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      { error: "Benutzer konnte nicht erstellt werden" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Ungültiger JSON-Body" }, { status: 400 });
+  }
+
+  const parsed = updateUserSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validierung fehlgeschlagen", details: parsed.error.flatten() },
+      { status: 400 }
+    );
+  }
+
+  const { id, role, isActive } = parsed.data;
+  if (role === undefined && isActive === undefined) {
+    return NextResponse.json(
+      { error: "Mindestens eines von role oder isActive ist erforderlich" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const updateValues: Partial<typeof users.$inferInsert> = {};
+    if (role !== undefined) updateValues.role = role;
+    if (isActive !== undefined) updateValues.isActive = isActive;
+
+    const [updated] = await db
+      .update(users)
+      .set(updateValues)
+      .where(eq(users.id, id))
+      .returning();
+
+    if (!updated) {
+      return NextResponse.json(
+        { error: "Benutzer nicht gefunden" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(toPublicUser(updated));
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      { error: "Benutzer konnte nicht aktualisiert werden" },
+      { status: 500 }
+    );
+  }
+}
