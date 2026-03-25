@@ -7,6 +7,8 @@ import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, desc, eq, ilike, isNotNull, or } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   searchParams: Promise<{ q?: string }>;
 };

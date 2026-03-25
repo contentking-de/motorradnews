@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 60;
+
 const publishedCondition = and(
   eq(articles.status, "PUBLISHED"),
   isNotNull(articles.publishedAt),

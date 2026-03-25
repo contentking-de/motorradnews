@@ -7,6 +7,8 @@ import { events } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
 import { and, asc, eq, gte, isNotNull } from "drizzle-orm";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Messen & Events",
   description: "Motorrad-Messen, Events und Veranstaltungen",

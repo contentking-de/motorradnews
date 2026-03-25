@@ -8,6 +8,8 @@ import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
 
+export const revalidate = 60;
+
 type Props = Readonly<{
   params: Promise<{ category: string }>;
 }>;

@@ -12,6 +12,8 @@ import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, count, desc, eq, isNotNull, ne } from "drizzle-orm";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
 
+export const revalidate = 60;
+
 const iconBySlug: Record<string, LucideIcon> = {
   neuheiten: Sparkles,
   tests: Gauge,

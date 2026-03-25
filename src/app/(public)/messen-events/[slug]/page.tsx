@@ -9,6 +9,8 @@ import { formatDate } from "@/lib/utils";
 import { eq } from "drizzle-orm";
 import { ArticleBody } from "@/components/public/ArticleBody";
 
+export const revalidate = 60;
+
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
 function extractPlainText(json: string): string {
