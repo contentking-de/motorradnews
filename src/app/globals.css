@@ -13,14 +13,14 @@
 @theme inline {
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text);
-  --font-sans: var(--font-barlow);
-  --font-serif: var(--font-source-serif);
+  --font-sans: var(--font-arimo);
+  --font-serif: var(--font-arimo);
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: var(--font-source-serif), Georgia, serif;
+  font-family: var(--font-arimo), Arial, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {

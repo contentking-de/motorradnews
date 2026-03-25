@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, Source_Serif_4 } from "next/font/google";
+import { Barlow_Condensed, Arimo } from "next/font/google";
 import "./globals.css";
 
 const barlowCondensed = Barlow_Condensed({
@@ -9,8 +9,8 @@ const barlowCondensed = Barlow_Condensed({
   display: "swap",
 });
 
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
+const arimo = Arimo({
+  variable: "--font-arimo",
   subsets: ["latin"],
   display: "swap",
 });
@@ -32,9 +32,9 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      className={`${barlowCondensed.variable} ${sourceSerif.variable} h-full antialiased`}
+      className={`${barlowCondensed.variable} ${arimo.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-serif bg-white text-[#111111]">
+      <body className="min-h-full flex flex-col font-sans bg-white text-[#111111]">
         {children}
       </body>
     </html>

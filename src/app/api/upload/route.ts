@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const blob = await put(`artikel/${file.name}`, file, {
-      access: "private",
+      access: "public",
       addRandomSuffix: true,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });

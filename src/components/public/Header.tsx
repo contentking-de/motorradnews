@@ -34,7 +34,7 @@ export function Header({ categories }: HeaderProps) {
         </Link>
 
         <nav
-          className="font-display hidden items-center justify-center gap-6 text-sm font-semibold uppercase tracking-wide text-[#111111] md:flex md:flex-1"
+          className="font-display hidden items-center justify-center gap-6 text-base font-semibold uppercase tracking-wide text-[#111111] md:flex md:flex-1"
           aria-label="Kategorien"
         >
           {categories.map((cat) => (
@@ -81,7 +81,7 @@ export function Header({ categories }: HeaderProps) {
           menuOpen ? "block" : "hidden",
         )}
       >
-        <nav className="flex flex-col gap-1 px-4 py-3 text-sm font-semibold uppercase tracking-wide" aria-label="Kategorien mobil">
+        <nav className="flex flex-col gap-1 px-4 py-3 text-base font-semibold uppercase tracking-wide" aria-label="Kategorien mobil">
           {categories.map((cat) => (
             <Link
               key={cat.slug}

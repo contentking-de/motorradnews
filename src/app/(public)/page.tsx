@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Sparkles, Gauge, Wrench, Compass, Flag, type LucideIcon } from "lucide-react";
 import { ArticleGrid } from "@/components/public/ArticleGrid";
 import { CategoryNav } from "@/components/public/CategoryNav";
 import { HeroArticle } from "@/components/public/HeroArticle";
@@ -7,6 +8,14 @@ import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
+
+const iconBySlug: Record<string, LucideIcon> = {
+  neuheiten: Sparkles,
+  tests: Gauge,
+  technik: Wrench,
+  reisen: Compass,
+  motorsport: Flag,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -89,17 +98,23 @@ export default async function HomePage() {
             Themen
           </h2>
           <ul className="mt-4 space-y-2 border-t border-[#E5E5E5] pt-4">
-            {categoriesWithCounts.map((c) => (
-              <li key={c.slug}>
-                <Link
-                  href={`/${c.slug}`}
-                  className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm text-[#111111] transition-colors hover:bg-[#F9F9F9] hover:text-[#E31E24]"
-                >
-                  <span className="font-medium">{c.name}</span>
-                  <span className="tabular-nums text-[#666666]">{Number(c.articleCount)}</span>
-                </Link>
-              </li>
-            ))}
+            {categoriesWithCounts.map((c) => {
+              const Icon = iconBySlug[c.slug];
+              return (
+                <li key={c.slug}>
+                  <Link
+                    href={`/${c.slug}`}
+                    className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm text-[#111111] transition-colors hover:bg-[#F9F9F9] hover:text-[#E31E24]"
+                  >
+                    <span className="flex items-center gap-2 font-medium">
+                      {Icon && <Icon className="size-4 shrink-0 opacity-70" aria-hidden />}
+                      {c.name}
+                    </span>
+                    <span className="tabular-nums text-[#666666]">{Number(c.articleCount)}</span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </aside>
       </div>
