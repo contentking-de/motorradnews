@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# project docs with credentials
+SPEC.md
+*.md
+!README.md
+
 # vercel
 .vercel
 
