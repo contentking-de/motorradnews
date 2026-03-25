@@ -51,7 +51,7 @@ export function Header({ categories }: HeaderProps) {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="font-display shrink-0 text-2xl font-semibold tracking-tight text-[#111111] sm:text-3xl"
+          className="font-display shrink-0 text-3xl font-semibold tracking-tight text-[#111111] sm:text-4xl"
           onClick={() => setMenuOpen(false)}
         >
           <span className="font-bold text-black">motorrad</span>
