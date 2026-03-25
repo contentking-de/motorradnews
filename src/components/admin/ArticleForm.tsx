@@ -339,7 +339,7 @@ export function ArticleForm({ article, categories }: ArticleFormProps) {
       <ImageUploader
         value={coverImageUrl}
         onChange={setCoverImageUrl}
-        label="Titelbild-URL"
+        label="Titelbild"
       />
 
       <div className="w-full">

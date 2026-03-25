@@ -1,11 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse, NextRequest } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
+import { put, del } from "@vercel/blob";
 
-export const runtime = "nodejs";
-
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
 const ALLOWED_TYPES = new Set([
@@ -14,13 +10,6 @@ const ALLOWED_TYPES = new Set([
   "image/gif",
   "image/webp",
 ]);
-
-const EXT_BY_MIME: Record<string, string> = {
-  "image/jpeg": ".jpg",
-  "image/png": ".png",
-  "image/gif": ".gif",
-  "image/webp": ".webp",
-};
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -41,7 +30,7 @@ export async function POST(request: NextRequest) {
   const file = formData.get("file");
   if (!file || !(file instanceof File)) {
     return NextResponse.json(
-      { error: "Feld „file“ fehlt oder ist keine Datei" },
+      { error: "Feld 'file' fehlt oder ist keine Datei" },
       { status: 400 }
     );
   }
@@ -61,26 +50,41 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const ext = EXT_BY_MIME[type];
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const baseName =
-    typeof crypto !== "undefined" && crypto.randomUUID
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  const filename = `${baseName}${ext}`;
-  const filepath = path.join(UPLOAD_DIR, filename);
-
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(filepath, buffer);
+    const blob = await put(`artikel/${file.name}`, file, {
+      access: "public",
+      addRandomSuffix: true,
+    });
+
+    return NextResponse.json({ url: blob.url });
   } catch (e) {
-    console.error(e);
+    console.error("Blob upload failed:", e);
     return NextResponse.json(
-      { error: "Upload konnte nicht gespeichert werden" },
+      { error: "Upload fehlgeschlagen" },
       { status: 500 }
     );
   }
+}
 
-  const url = `/uploads/${filename}`;
-  return NextResponse.json({ url });
+export async function DELETE(request: NextRequest) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { url } = (await request.json()) as { url?: string };
+    if (!url) {
+      return NextResponse.json({ error: "URL fehlt" }, { status: 400 });
+    }
+
+    await del(url);
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error("Blob delete failed:", e);
+    return NextResponse.json(
+      { error: "Löschen fehlgeschlagen" },
+      { status: 500 }
+    );
+  }
 }
