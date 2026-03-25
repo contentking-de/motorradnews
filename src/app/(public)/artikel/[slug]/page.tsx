@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/utils";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, count, desc, eq, isNotNull, ne } from "drizzle-orm";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
+import { PresseSidebar } from "@/components/public/PresseSidebar";
 
 export const revalidate = 60;
 
@@ -277,6 +278,7 @@ export default async function ArticlePage({ params }: Props) {
             ) : null}
 
             <UpcomingEventsSidebar />
+            <PresseSidebar />
           </div>
         </aside>
       </div>

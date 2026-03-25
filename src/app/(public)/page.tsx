@@ -5,6 +5,7 @@ import { ArticleGrid } from "@/components/public/ArticleGrid";
 import { CategoryNav } from "@/components/public/CategoryNav";
 import { HeroArticle } from "@/components/public/HeroArticle";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
+import { PresseSidebar } from "@/components/public/PresseSidebar";
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
@@ -120,6 +121,7 @@ export default async function HomePage() {
             })}
           </ul>
           <UpcomingEventsSidebar />
+          <PresseSidebar />
         </aside>
       </div>
 
