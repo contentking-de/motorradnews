@@ -10,6 +10,7 @@ import { articles, categories, users } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, count, desc, eq, isNotNull, ne } from "drizzle-orm";
+import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
 
 const iconBySlug: Record<string, LucideIcon> = {
   neuheiten: Sparkles,
@@ -203,7 +204,7 @@ export default async function ArticlePage({ params }: Props) {
         <aside className="mt-10 shrink-0 lg:mt-0 lg:w-64 xl:w-72" aria-label="Sidebar">
           <div className="sticky top-20 space-y-8">
             <div>
-              <h2 className="font-display text-sm font-bold uppercase tracking-wide text-[#111111]">
+              <h2 className="font-display text-base font-bold uppercase tracking-wide text-[#111111]">
                 Themen
               </h2>
               <ul className="mt-4 space-y-2 border-t border-[#E5E5E5] pt-4">
@@ -234,7 +235,7 @@ export default async function ArticlePage({ params }: Props) {
 
             {relatedArticles.length > 0 ? (
               <div>
-                <h2 className="font-display text-sm font-bold uppercase tracking-wide text-[#111111]">
+                <h2 className="font-display text-base font-bold uppercase tracking-wide text-[#111111]">
                   Neueste aus {category.name}
                 </h2>
                 <ul className="mt-4 space-y-4 border-t border-[#E5E5E5] pt-4">
@@ -272,6 +273,8 @@ export default async function ArticlePage({ params }: Props) {
                 </ul>
               </div>
             ) : null}
+
+            <UpcomingEventsSidebar />
           </div>
         </aside>
       </div>

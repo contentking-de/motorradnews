@@ -4,9 +4,21 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { ArticleEditor } from "@/components/admin/ArticleEditor";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { slugify } from "@/lib/utils";
 import { eventSchema } from "@/lib/validations";
+
+const EMPTY_DOC = JSON.stringify({ type: "doc", content: [] });
+
+function normalizeDescription(desc: string | undefined): string {
+  if (!desc || desc.trim() === "") return EMPTY_DOC;
+  try {
+    const parsed = JSON.parse(desc) as { type?: string };
+    if (parsed && typeof parsed === "object" && parsed.type === "doc") return desc;
+  } catch { /* kein JSON */ }
+  return EMPTY_DOC;
+}
 
 export type EventFormEvent = {
   id: string;
@@ -54,7 +66,9 @@ export function EventForm({ event }: EventFormProps) {
 
   const [title, setTitle] = useState(event?.title ?? "");
   const [slug, setSlug] = useState(event?.slug ?? "");
-  const [description, setDescription] = useState(event?.description ?? "");
+  const [description, setDescription] = useState(() =>
+    normalizeDescription(event?.description)
+  );
   const [startDate, setStartDate] = useState(toDatetimeLocal(event?.startDate));
   const [endDate, setEndDate] = useState(toDatetimeLocal(event?.endDate));
   const [venueName, setVenueName] = useState(event?.venueName ?? "");
@@ -144,18 +158,10 @@ export function EventForm({ event }: EventFormProps) {
       <Input id="event-slug" label="Slug" value={slug} onChange={(e) => onSlugChange(e.target.value)} required maxLength={255} spellCheck={false} />
 
       <div className="w-full">
-        <label htmlFor="event-description" className="mb-1 block text-sm font-display font-semibold text-[#111111]">
+        <span className="mb-1 block text-sm font-display font-semibold text-[#111111]">
           Beschreibung
-        </label>
-        <textarea
-          id="event-description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={5}
-          required
-          className={inputClass}
-          placeholder="Beschreibung der Veranstaltung…"
-        />
+        </span>
+        <ArticleEditor content={description} onChange={setDescription} />
       </div>
 
       <fieldset className="space-y-4 rounded-lg border border-[#E5E5E5] p-4">

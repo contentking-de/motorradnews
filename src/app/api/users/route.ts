@@ -19,6 +19,9 @@ const createUserSchema = z.object({
 
 const updateUserSchema = z.object({
   id: z.string().uuid(),
+  name: z.string().min(1).max(100).optional(),
+  email: z.string().email().max(255).optional(),
+  password: z.string().min(8).max(128).optional(),
   role: userRoleSchema.optional(),
   isActive: z.boolean().optional(),
 });
@@ -141,16 +144,19 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  const { id, role, isActive } = parsed.data;
-  if (role === undefined && isActive === undefined) {
+  const { id, name, email, password, role, isActive } = parsed.data;
+  if (name === undefined && email === undefined && password === undefined && role === undefined && isActive === undefined) {
     return NextResponse.json(
-      { error: "Mindestens eines von role oder isActive ist erforderlich" },
+      { error: "Mindestens ein Feld zum Aktualisieren ist erforderlich" },
       { status: 400 }
     );
   }
 
   try {
     const updateValues: Partial<typeof users.$inferInsert> = {};
+    if (name !== undefined) updateValues.name = name;
+    if (email !== undefined) updateValues.email = email;
+    if (password !== undefined) updateValues.passwordHash = await bcrypt.hash(password, 12);
     if (role !== undefined) updateValues.role = role;
     if (isActive !== undefined) updateValues.isActive = isActive;
 

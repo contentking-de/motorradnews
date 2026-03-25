@@ -56,6 +56,15 @@ export default function RedakteurePage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
 
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editUser, setEditUser] = useState<UserRow | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editRole, setEditRole] = useState<"ADMIN" | "EDITOR">("EDITOR");
+  const [editPassword, setEditPassword] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
   const isAdmin = session?.user?.role === "ADMIN";
   const currentUserId = session?.user?.id;
 
@@ -180,6 +189,60 @@ export default function RedakteurePage() {
     );
     if (!ok) return;
     void updateUser(user.id, { isActive: !user.isActive });
+  }
+
+  function openEditModal(user: UserRow) {
+    setEditUser(user);
+    setEditName(user.name);
+    setEditEmail(user.email);
+    setEditRole(user.role);
+    setEditPassword("");
+    setEditError(null);
+    setEditModalOpen(true);
+  }
+
+  async function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editUser) return;
+    setEditError(null);
+
+    if (editPassword && editPassword.length < 8) {
+      setEditError("Das Passwort muss mindestens 8 Zeichen haben.");
+      return;
+    }
+
+    const payload: Record<string, unknown> = { id: editUser.id };
+    if (editName.trim() !== editUser.name) payload.name = editName.trim();
+    if (editEmail.trim() !== editUser.email) payload.email = editEmail.trim();
+    if (editRole !== editUser.role) payload.role = editRole;
+    if (editPassword) payload.password = editPassword;
+
+    if (Object.keys(payload).length === 1) {
+      setEditModalOpen(false);
+      return;
+    }
+
+    setEditSaving(true);
+    try {
+      const res = await fetch("/api/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setEditError(
+          typeof body?.error === "string" ? body.error : "Aktualisierung fehlgeschlagen."
+        );
+        return;
+      }
+      setEditModalOpen(false);
+      await loadUsers();
+    } catch {
+      setEditError("Aktualisierung fehlgeschlagen.");
+    } finally {
+      setEditSaving(false);
+    }
   }
 
   if (sessionStatus === "loading") {
@@ -353,6 +416,18 @@ export default function RedakteurePage() {
                           size="sm"
                           className="gap-1 px-2"
                           disabled={busy}
+                          title="Bearbeiten"
+                          onClick={() => openEditModal(u)}
+                        >
+                          <Pencil className="size-4" aria-hidden />
+                          <span className="hidden sm:inline">Bearbeiten</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1 px-2"
+                          disabled={busy}
                           title={
                             u.isActive ? "Deaktivieren" : "Aktivieren"
                           }
@@ -461,6 +536,87 @@ export default function RedakteurePage() {
             </Button>
             <Button type="submit" variant="primary" disabled={creating}>
               {creating ? "Wird angelegt…" : "Anlegen"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={editModalOpen}
+        onClose={() => !editSaving && setEditModalOpen(false)}
+        title="Benutzer bearbeiten"
+      >
+        <form onSubmit={handleEdit} className="space-y-4">
+          <Input
+            id="edit-user-name"
+            label="Name"
+            required
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            autoComplete="name"
+          />
+          <Input
+            id="edit-user-email"
+            label="E-Mail"
+            type="email"
+            required
+            value={editEmail}
+            onChange={(e) => setEditEmail(e.target.value)}
+            autoComplete="email"
+          />
+          <div>
+            <label
+              htmlFor="edit-user-role"
+              className="block text-sm font-display font-semibold text-[#111111] mb-1"
+            >
+              Rolle
+            </label>
+            <select
+              id="edit-user-role"
+              className={selectClass}
+              value={editRole}
+              onChange={(e) =>
+                setEditRole(e.target.value as "ADMIN" | "EDITOR")
+              }
+            >
+              <option value="EDITOR">Redakteur</option>
+              <option value="ADMIN">Administrator</option>
+            </select>
+          </div>
+          <div>
+            <Input
+              id="edit-user-password"
+              label="Neues Passwort (leer = unverändert)"
+              type="password"
+              value={editPassword}
+              onChange={(e) => setEditPassword(e.target.value)}
+              autoComplete="new-password"
+              placeholder="Nur ausfüllen wenn Passwort geändert werden soll"
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="mt-2"
+              onClick={() => setEditPassword(generatePassword())}
+            >
+              Passwort generieren
+            </Button>
+          </div>
+          {editError ? (
+            <p className="text-sm text-red-600">{editError}</p>
+          ) : null}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={editSaving}
+              onClick={() => setEditModalOpen(false)}
+            >
+              Abbrechen
+            </Button>
+            <Button type="submit" variant="primary" disabled={editSaving}>
+              {editSaving ? "Wird gespeichert…" : "Speichern"}
             </Button>
           </div>
         </form>

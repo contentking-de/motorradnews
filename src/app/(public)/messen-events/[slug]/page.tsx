@@ -7,8 +7,22 @@ import { db } from "@/db";
 import { events } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
 import { eq } from "drizzle-orm";
+import { ArticleBody } from "@/components/public/ArticleBody";
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
+
+function extractPlainText(json: string): string {
+  try {
+    const doc = JSON.parse(json) as { content?: { content?: { text?: string }[] }[] };
+    if (!doc?.content) return json;
+    return doc.content
+      .flatMap((node) => node.content?.map((c) => c.text ?? "") ?? [])
+      .join(" ")
+      .trim();
+  } catch {
+    return json;
+  }
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -20,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: ev.title,
-    description: ev.description.slice(0, 160),
+    description: extractPlainText(ev.description).slice(0, 160),
   };
 }
 
@@ -39,7 +53,7 @@ export default async function EventDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Event",
     name: ev.title,
-    description: ev.description,
+    description: extractPlainText(ev.description),
     startDate: startIso,
     ...(endIso ? { endDate: endIso } : {}),
     eventStatus: "https://schema.org/EventScheduled",
@@ -134,9 +148,7 @@ export default async function EventDetailPage({ params }: Props) {
         <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:flex lg:gap-10 lg:px-8 lg:py-12">
           <div className="min-w-0 flex-1">
             <div className="prose prose-lg mx-auto max-w-3xl text-[#111111] lg:mx-0">
-              {ev.description.split("\n").map((p, i) =>
-                p.trim() ? <p key={i}>{p}</p> : null,
-              )}
+              <ArticleBody content={ev.description} />
             </div>
           </div>
 
