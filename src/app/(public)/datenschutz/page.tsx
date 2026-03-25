@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CookieSettingsButton } from "@/components/public/CookieSettingsButton";
 
 export const metadata: Metadata = {
   title: "Datenschutzerklärung",
@@ -349,6 +350,9 @@ export default function DatenschutzPage() {
               Datenschutzerklärung darauf hin, auf welcher Rechtsgrundlage diese
               Daten verarbeitet werden.
             </p>
+            <div className="mt-4">
+              <CookieSettingsButton />
+            </div>
           </div>
         </section>
 

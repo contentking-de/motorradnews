@@ -1,5 +1,7 @@
 import { Header } from "@/components/public/Header";
 import { Footer } from "@/components/public/Footer";
+import { CookieBanner } from "@/components/public/CookieBanner";
+import { ConsentProvider } from "@/lib/consent";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { asc } from "drizzle-orm";
@@ -18,10 +20,13 @@ export default async function PublicLayout({
     .orderBy(asc(categories.sortOrder));
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-[#111111]">
-      <Header categories={headerCategories} />
-      <main className="flex flex-1 flex-col">{children}</main>
-      <Footer />
-    </div>
+    <ConsentProvider>
+      <div className="flex min-h-screen flex-col bg-white text-[#111111]">
+        <Header categories={headerCategories} />
+        <main className="flex flex-1 flex-col">{children}</main>
+        <Footer />
+      </div>
+      <CookieBanner />
+    </ConsentProvider>
   );
 }
