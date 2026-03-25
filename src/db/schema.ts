@@ -69,3 +69,31 @@ export const articleTags = pgTable("article_tags", {
     .notNull()
     .references(() => tags.id, { onDelete: "cascade" }),
 });
+
+export const eventStatusEnum = pgEnum("event_status", [
+  "DRAFT",
+  "PUBLISHED",
+  "ARCHIVED",
+]);
+
+export const events = pgTable("events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  venueName: varchar("venue_name", { length: 255 }).notNull(),
+  venueAddress: varchar("venue_address", { length: 255 }).notNull(),
+  venueCity: varchar("venue_city", { length: 100 }).notNull(),
+  venueCountry: varchar("venue_country", { length: 100 }).notNull().default("Deutschland"),
+  ticketUrl: text("ticket_url"),
+  coverImageUrl: text("cover_image_url"),
+  status: eventStatusEnum("event_status").notNull().default("DRAFT"),
+  authorId: uuid("author_id")
+    .notNull()
+    .references(() => users.id),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

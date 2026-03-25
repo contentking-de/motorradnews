@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
+  CalendarDays,
   FileText,
   FolderOpen,
   LayoutDashboard,
@@ -33,6 +34,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   }[] = [
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/artikel", label: "Artikel", icon: FileText },
+    { href: "/admin/events", label: "Messen & Events", icon: CalendarDays },
     { href: "/admin/kategorien", label: "Kategorien", icon: FolderOpen },
     {
       href: "/admin/redakteure",
