@@ -65,18 +65,19 @@ async function crawlRSS(source: Source): Promise<number> {
 
     let fullBody = item.description ?? "";
 
-    if (item.link && fullBody.length < 500) {
-      try {
-        const articleRes = await fetch(item.link, {
-          headers: { "User-Agent": "MotorradNews-Crawler/1.0" },
-        });
-        if (articleRes.ok) {
-          const html = await articleRes.text();
-          fullBody = extractMainContent(html) || fullBody;
+    try {
+      const articleRes = await fetch(item.link, {
+        headers: { "User-Agent": "MotorradNews-Crawler/1.0" },
+      });
+      if (articleRes.ok) {
+        const html = await articleRes.text();
+        const scraped = extractMainContent(html);
+        if (scraped && scraped.length > fullBody.length) {
+          fullBody = scraped;
         }
-      } catch {
-        // keep the feed description
       }
+    } catch {
+      // keep the feed description as fallback
     }
 
     await db.insert(ingestedItems).values({
