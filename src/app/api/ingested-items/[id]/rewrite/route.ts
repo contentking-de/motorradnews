@@ -82,7 +82,7 @@ Nutze das Tool "save_article", um den umgeschriebenen Artikel zu speichern.`;
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 4096,
+        max_tokens: 16384,
         system: systemPrompt,
         messages: [
           {
@@ -127,6 +127,11 @@ Nutze das Tool "save_article", um den umgeschriebenen Artikel zu speichern.`;
     }
 
     const data = await res.json();
+
+    if (data.stop_reason === "max_tokens") {
+      throw new Error("Claude-Antwort wurde abgeschnitten (max_tokens erreicht). Bitte erneut versuchen.");
+    }
+
     const toolBlock = data.content.find(
       (b: { type: string }) => b.type === "tool_use"
     );
@@ -134,6 +139,10 @@ Nutze das Tool "save_article", um den umgeschriebenen Artikel zu speichern.`;
       throw new Error("Keine strukturierte Antwort von Claude erhalten");
     }
     const content = toolBlock.input;
+
+    if (!content.body || content.body.length < 50) {
+      throw new Error("Claude hat keinen Artikeltext geliefert. Bitte erneut versuchen.");
+    }
 
     const [updated] = await db
       .update(ingestedItems)
