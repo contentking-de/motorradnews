@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Sparkles, Gauge, Wrench, Compass, Flag, type LucideIcon } from "lucide-react";
+import { Sparkles, Gauge, Wrench, Compass, Flag, Mountain, Newspaper, type LucideIcon } from "lucide-react";
 
 const iconBySlug: Record<string, LucideIcon> = {
   neuheiten: Sparkles,
@@ -8,6 +8,8 @@ const iconBySlug: Record<string, LucideIcon> = {
   technik: Wrench,
   reisen: Compass,
   motorsport: Flag,
+  offroad: Mountain,
+  "sonstige-news": Newspaper,
 };
 
 export type CategoryNavItem = {
