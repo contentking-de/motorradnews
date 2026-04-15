@@ -6,6 +6,8 @@ import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { asc } from "drizzle-orm";
 
+export const revalidate = 60;
+
 export default async function PublicLayout({
   children,
 }: Readonly<{
