@@ -1,16 +1,6 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Sparkles, Gauge, Wrench, Compass, Flag, Mountain, Newspaper, type LucideIcon } from "lucide-react";
-
-const iconBySlug: Record<string, LucideIcon> = {
-  neuheiten: Sparkles,
-  tests: Gauge,
-  technik: Wrench,
-  reisen: Compass,
-  motorsport: Flag,
-  offroad: Mountain,
-  "sonstige-news": Newspaper,
-};
+import { categoryIconBySlug } from "@/lib/category-icons";
 
 export type CategoryNavItem = {
   name: string;
@@ -36,7 +26,7 @@ export function CategoryNav({ categories, activeSlug }: CategoryNavProps) {
         <ul className="-mx-1 flex gap-2 overflow-x-auto py-3 [scrollbar-width:thin]">
           {categories.map((cat) => {
             const active = activeSlug === cat.slug;
-            const Icon = iconBySlug[cat.slug];
+            const Icon = categoryIconBySlug[cat.slug];
             return (
               <li key={cat.slug} className="shrink-0">
                 <Link

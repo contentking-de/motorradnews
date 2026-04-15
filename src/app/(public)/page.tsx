@@ -1,23 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Sparkles, Gauge, Wrench, Compass, Flag, CalendarDays, type LucideIcon } from "lucide-react";
+import { Sparkles, Gauge, Wrench, Compass, Flag, CalendarDays } from "lucide-react";
 import { ArticleGrid } from "@/components/public/ArticleGrid";
 import { CategoryNav } from "@/components/public/CategoryNav";
 import { HeroArticle } from "@/components/public/HeroArticle";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
 import { PresseSidebar } from "@/components/public/PresseSidebar";
+import { categoryIconBySlug } from "@/lib/category-icons";
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
-
-const iconBySlug: Record<string, LucideIcon> = {
-  neuheiten: Sparkles,
-  tests: Gauge,
-  technik: Wrench,
-  reisen: Compass,
-  motorsport: Flag,
-};
 
 export const metadata: Metadata = {
   title: {
@@ -103,7 +96,7 @@ export default async function HomePage() {
           </h2>
           <ul className="mt-4 space-y-2 border-t border-[#E5E5E5] pt-4">
             {categoriesWithCounts.map((c) => {
-              const Icon = iconBySlug[c.slug];
+              const Icon = categoryIconBySlug[c.slug];
               return (
                 <li key={c.slug}>
                   <Link

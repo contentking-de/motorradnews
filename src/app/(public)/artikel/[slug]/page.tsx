@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Sparkles, Gauge, Wrench, Compass, Flag, type LucideIcon } from "lucide-react";
 import { ArticleBody } from "@/components/public/ArticleBody";
 import { ArticleCard } from "@/components/public/ArticleCard";
+import { categoryIconBySlug } from "@/lib/category-icons";
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
@@ -14,14 +14,6 @@ import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar
 import { PresseSidebar } from "@/components/public/PresseSidebar";
 
 export const revalidate = 60;
-
-const iconBySlug: Record<string, LucideIcon> = {
-  neuheiten: Sparkles,
-  tests: Gauge,
-  technik: Wrench,
-  reisen: Compass,
-  motorsport: Flag,
-};
 
 type Props = Readonly<{
   params: Promise<{ slug: string }>;
@@ -212,7 +204,7 @@ export default async function ArticlePage({ params }: Props) {
               </h2>
               <ul className="mt-4 space-y-2 border-t border-[#E5E5E5] pt-4">
                 {allCategories.map((c) => {
-                  const Icon = iconBySlug[c.slug];
+                  const Icon = categoryIconBySlug[c.slug];
                   const active = c.slug === category.slug;
                   return (
                     <li key={c.slug}>
