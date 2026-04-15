@@ -250,12 +250,57 @@ function extractTitle(html: string): string | undefined {
 }
 
 function extractMainContent(html: string): string | undefined {
+  const ldJson = extractFromLdJson(html);
+  if (ldJson && ldJson.length > 100) return ldJson;
+
+  const nextData = extractFromNextData(html);
+  if (nextData && nextData.length > 100) return nextData;
+
   const articleMatch = /<article[^>]*>([\s\S]*?)<\/article>/i.exec(html);
   if (articleMatch) return stripTags(articleMatch[1]).trim();
 
   const mainMatch = /<main[^>]*>([\s\S]*?)<\/main>/i.exec(html);
   if (mainMatch) return stripTags(mainMatch[1]).trim();
 
+  return undefined;
+}
+
+function extractFromLdJson(html: string): string | undefined {
+  const ldJsonRegex =
+    /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi;
+  let match;
+  while ((match = ldJsonRegex.exec(html)) !== null) {
+    try {
+      const data = JSON.parse(match[1]);
+      const items = Array.isArray(data) ? data : [data];
+      for (const item of items) {
+        if (item.articleBody) return item.articleBody;
+        if (item["@graph"]) {
+          for (const node of item["@graph"]) {
+            if (node.articleBody) return node.articleBody;
+          }
+        }
+      }
+    } catch {
+      continue;
+    }
+  }
+  return undefined;
+}
+
+function extractFromNextData(html: string): string | undefined {
+  const nextDataMatch =
+    /<script[^>]*id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i.exec(html);
+  if (!nextDataMatch) return undefined;
+
+  try {
+    const data = JSON.parse(nextDataMatch[1]);
+    const text = JSON.stringify(data);
+    const bodyMatch = /"(?:articleBody|body|content|text)":\s*"([^"]{200,})"/i.exec(text);
+    if (bodyMatch) return bodyMatch[1].replace(/\\n/g, "\n").replace(/\\"/g, '"');
+  } catch {
+    // ignore
+  }
   return undefined;
 }
 

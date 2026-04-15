@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   SkipForward,
   RefreshCw,
+  Download,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
@@ -162,6 +163,33 @@ export default function IngestedItemsPage({ params }: Props) {
         `KI-Umschreibung fehlgeschlagen: ${err instanceof Error ? err.message : "Unbekannter Fehler"}`
       );
       await loadItems();
+    } finally {
+      setProcessingIds((s) => {
+        const next = new Set(s);
+        next.delete(itemId);
+        return next;
+      });
+    }
+  }
+
+  async function handleRescrape(itemId: string) {
+    setProcessingIds((s) => new Set(s).add(itemId));
+    try {
+      const res = await fetch(`/api/ingested-items/${itemId}/rescrape`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Fehler");
+      }
+      const data = await res.json();
+      alert(`Inhalt neu gescrapt! (${data.bodyLength} Zeichen)`);
+      await loadItems();
+    } catch (err) {
+      alert(
+        `Scraping fehlgeschlagen: ${err instanceof Error ? err.message : "Unbekannter Fehler"}`
+      );
     } finally {
       setProcessingIds((s) => {
         const next = new Set(s);
@@ -352,22 +380,44 @@ export default function IngestedItemsPage({ params }: Props) {
                     )}
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
                     {(item.status === "NEW" || item.status === "FAILED") && (
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => handleRewrite(item.id)}
-                        disabled={isProcessing}
-                        className="gap-1.5"
-                      >
-                        {isProcessing ? (
-                          <Loader2 className="size-3.5 animate-spin" />
-                        ) : (
-                          <Sparkles className="size-3.5" />
+                      <>
+                        {!item.originalBody && (
+                          <span className="text-xs text-amber-600 font-semibold">
+                            Kein Inhalt
+                          </span>
                         )}
-                        KI umschreiben
-                      </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => handleRescrape(item.id)}
+                          disabled={isProcessing}
+                          className="gap-1.5"
+                          title="Artikelseite erneut scrapen"
+                        >
+                          {isProcessing ? (
+                            <Loader2 className="size-3.5 animate-spin" />
+                          ) : (
+                            <Download className="size-3.5" />
+                          )}
+                          Scrapen
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => handleRewrite(item.id)}
+                          disabled={isProcessing || !item.originalBody}
+                          className="gap-1.5"
+                        >
+                          {isProcessing ? (
+                            <Loader2 className="size-3.5 animate-spin" />
+                          ) : (
+                            <Sparkles className="size-3.5" />
+                          )}
+                          KI umschreiben
+                        </Button>
+                      </>
                     )}
                     {item.status === "REWRITTEN" && (
                       <>
