@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { eq } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { slugify } from "@/lib/utils";
+import { htmlToTiptapJson } from "@/lib/tiptap";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -76,7 +77,7 @@ export async function POST(_request: NextRequest, ctx: RouteContext) {
         title: item.rewrittenTitle,
         slug,
         teaser: item.rewrittenTeaser ?? "",
-        body: item.rewrittenBody,
+        body: htmlToTiptapJson(item.rewrittenBody),
         categoryId,
         authorId,
         status: "DRAFT",
