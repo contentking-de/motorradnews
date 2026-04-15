@@ -11,13 +11,18 @@ export default async function PublicLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headerCategories = await db
-    .select({
-      name: categories.name,
-      slug: categories.slug,
-    })
-    .from(categories)
-    .orderBy(asc(categories.sortOrder));
+  let headerCategories: { name: string; slug: string }[] = [];
+  try {
+    headerCategories = await db
+      .select({
+        name: categories.name,
+        slug: categories.slug,
+      })
+      .from(categories)
+      .orderBy(asc(categories.sortOrder));
+  } catch {
+    headerCategories = [];
+  }
 
   return (
     <ConsentProvider>
