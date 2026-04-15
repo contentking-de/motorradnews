@@ -12,6 +12,8 @@ import {
   Trash2,
   CheckCircle2,
   XCircle,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -37,6 +39,7 @@ export default function NewsQuellenPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [crawlingIds, setCrawlingIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const t = window.setTimeout(
@@ -82,6 +85,36 @@ export default function NewsQuellenPage() {
       loadSources();
     } catch {
       alert("Löschen fehlgeschlagen.");
+    }
+  }
+
+  async function handleCrawl(id: string) {
+    setCrawlingIds((s) => new Set(s).add(id));
+    try {
+      const res = await fetch(`/api/news-sources/${id}/crawl`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      if (data.error) {
+        alert(`Crawl-Fehler: ${data.error}`);
+      } else {
+        alert(
+          data.newItems > 0
+            ? `${data.newItems} neue Items gefunden!`
+            : "Keine neuen Items gefunden."
+        );
+      }
+      loadSources();
+    } catch {
+      alert("Crawl fehlgeschlagen.");
+    } finally {
+      setCrawlingIds((s) => {
+        const next = new Set(s);
+        next.delete(id);
+        return next;
+      });
     }
   }
 
@@ -257,6 +290,19 @@ export default function NewsQuellenPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleCrawl(src.id)}
+                        disabled={crawlingIds.has(src.id)}
+                        className="rounded-md p-1.5 text-[#666666] hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50"
+                        title="Jetzt crawlen"
+                      >
+                        {crawlingIds.has(src.id) ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="size-4" />
+                        )}
+                      </button>
                       <Link
                         href={`/admin/news-quellen/${src.id}/items`}
                         className="rounded-md p-1.5 text-[#666666] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
