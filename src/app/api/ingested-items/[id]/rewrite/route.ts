@@ -49,12 +49,7 @@ Schreibe den folgenden Nachrichtenartikel komplett um. Der neue Artikel soll:
 - In professionellem, lebendigem Deutsch geschrieben sein
 - Für Motorrad-Enthusiasten ansprechend sein
 
-Antworte AUSSCHLIESSLICH im folgenden JSON-Format:
-{
-  "title": "Neuer einzigartiger Titel",
-  "teaser": "Ein kurzer Teaser-Text (1-2 Sätze, max 200 Zeichen)",
-  "body": "Der vollständige Artikeltext als HTML (verwende <p>, <h2>, <h3>, <strong>, <em>, <ul>, <li> Tags)"
-}`;
+Nutze das Tool "save_article", um den umgeschriebenen Artikel zu speichern.`;
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
@@ -73,6 +68,34 @@ Antworte AUSSCHLIESSLICH im folgenden JSON-Format:
             content: `Originaltitel: ${item.originalTitle}\n\nOriginaltext:\n${item.originalBody}`,
           },
         ],
+        tools: [
+          {
+            name: "save_article",
+            description:
+              "Speichert den umgeschriebenen Artikel mit Titel, Teaser und Body.",
+            input_schema: {
+              type: "object",
+              properties: {
+                title: {
+                  type: "string",
+                  description: "Neuer einzigartiger Titel",
+                },
+                teaser: {
+                  type: "string",
+                  description:
+                    "Kurzer Teaser-Text (1-2 Sätze, max 200 Zeichen)",
+                },
+                body: {
+                  type: "string",
+                  description:
+                    "Vollständiger Artikeltext als HTML (mit <p>, <h2>, <h3>, <strong>, <em>, <ul>, <li> Tags)",
+                },
+              },
+              required: ["title", "teaser", "body"],
+            },
+          },
+        ],
+        tool_choice: { type: "tool", name: "save_article" },
       }),
     });
 
@@ -82,14 +105,13 @@ Antworte AUSSCHLIESSLICH im folgenden JSON-Format:
     }
 
     const data = await res.json();
-    const textBlock = data.content.find(
-      (b: { type: string }) => b.type === "text"
+    const toolBlock = data.content.find(
+      (b: { type: string }) => b.type === "tool_use"
     );
-    if (!textBlock) throw new Error("Keine Textantwort von Claude erhalten");
-
-    const jsonMatch = textBlock.text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("Kein JSON in Claude-Antwort gefunden");
-    const content = JSON.parse(jsonMatch[0]);
+    if (!toolBlock?.input) {
+      throw new Error("Keine strukturierte Antwort von Claude erhalten");
+    }
+    const content = toolBlock.input;
 
     const [updated] = await db
       .update(ingestedItems)
