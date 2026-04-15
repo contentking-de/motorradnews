@@ -37,9 +37,9 @@ export async function POST(_request: NextRequest, ctx: RouteContext) {
     .where(eq(ingestedItems.id, id));
 
   try {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
-      throw new Error("OPENAI_API_KEY nicht konfiguriert");
+      throw new Error("ANTHROPIC_API_KEY nicht konfiguriert");
     }
 
     const systemPrompt = `Du bist ein professioneller Motorrad-Journalist für ein deutschsprachiges Motorrad-Nachrichtenportal.
@@ -56,33 +56,40 @@ Antworte AUSSCHLIESSLICH im folgenden JSON-Format:
   "body": "Der vollständige Artikeltext als HTML (verwende <p>, <h2>, <h3>, <strong>, <em>, <ul>, <li> Tags)"
 }`;
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
           {
             role: "user",
             content: `Originaltitel: ${item.originalTitle}\n\nOriginaltext:\n${item.originalBody}`,
           },
         ],
-        temperature: 0.7,
-        response_format: { type: "json_object" },
       }),
     });
 
     if (!res.ok) {
       const errBody = await res.text();
-      throw new Error(`OpenAI API Fehler: ${res.status} – ${errBody}`);
+      throw new Error(`Claude API Fehler: ${res.status} – ${errBody}`);
     }
 
     const data = await res.json();
-    const content = JSON.parse(data.choices[0].message.content);
+    const textBlock = data.content.find(
+      (b: { type: string }) => b.type === "text"
+    );
+    if (!textBlock) throw new Error("Keine Textantwort von Claude erhalten");
+
+    const jsonMatch = textBlock.text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("Kein JSON in Claude-Antwort gefunden");
+    const content = JSON.parse(jsonMatch[0]);
 
     const [updated] = await db
       .update(ingestedItems)
