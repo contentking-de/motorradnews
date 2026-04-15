@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type HeaderCategory = {
@@ -73,8 +73,9 @@ export function Header({ categories }: HeaderProps) {
           ))}
           <Link
             href="/messen-events"
-            className="transition-colors hover:text-[#E31E24]"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-[#E31E24]"
           >
+            <CalendarDays className="size-4" aria-hidden />
             Events
           </Link>
         </nav>
@@ -171,9 +172,10 @@ export function Header({ categories }: HeaderProps) {
           ))}
           <Link
             href="/messen-events"
-            className="rounded-md px-3 py-2 text-[#111111] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[#111111] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
             onClick={() => setMenuOpen(false)}
           >
+            <CalendarDays className="size-4" aria-hidden />
             Events
           </Link>
         </nav>
