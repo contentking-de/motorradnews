@@ -108,7 +108,7 @@ export const ingestedItems = pgTable("ingested_items", {
   rewrittenTeaser: text("rewritten_teaser"),
   rewrittenBody: text("rewritten_body"),
   status: ingestedItemStatusEnum("status").notNull().default("NEW"),
-  articleId: uuid("article_id").references(() => articles.id),
+  articleId: uuid("article_id").references(() => articles.id, { onDelete: "set null" }),
   errorMessage: text("error_message"),
   fetchedAt: timestamp("fetched_at").defaultNow().notNull(),
   rewrittenAt: timestamp("rewritten_at"),
