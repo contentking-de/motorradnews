@@ -407,7 +407,7 @@ export default function IngestedItemsPage({ params }: Props) {
                           variant="primary"
                           size="sm"
                           onClick={() => handleRewrite(item.id)}
-                          disabled={isProcessing || !item.originalBody}
+                          disabled={isProcessing}
                           className="gap-1.5"
                         >
                           {isProcessing ? (
