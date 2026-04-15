@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { CalendarDays, MapPin, Ticket } from "lucide-react";
+import { SubmitEventModal } from "@/components/public/SubmitEventModal";
 import { db } from "@/db";
 import { events } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
@@ -31,11 +32,14 @@ export default async function EventsListingPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-      <div className="flex items-center gap-3">
-        <CalendarDays className="size-7 shrink-0 text-[#E31E24]" />
-        <h1 className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl">
-          Messen &amp; Events
-        </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <CalendarDays className="size-7 shrink-0 text-[#E31E24]" />
+          <h1 className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl">
+            Messen &amp; Events
+          </h1>
+        </div>
+        <SubmitEventModal />
       </div>
 
       {upcomingEvents.length === 0 ? (
