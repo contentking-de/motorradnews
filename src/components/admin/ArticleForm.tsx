@@ -34,6 +34,9 @@ function normalizeBodyFromApi(body: string | undefined): string {
   } catch {
     /* kein JSON-Dokument */
   }
+  if (body.includes("<") && body.includes(">")) {
+    return body;
+  }
   return EMPTY_DOC;
 }
 

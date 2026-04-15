@@ -21,7 +21,7 @@ import {
 import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-function parseContent(json: string): Record<string, unknown> {
+function parseContent(json: string): string | Record<string, unknown> {
   if (!json || json.trim() === "") {
     return { type: "doc", content: [] };
   }
@@ -31,7 +31,10 @@ function parseContent(json: string): Record<string, unknown> {
       return parsed as Record<string, unknown>;
     }
   } catch {
-    /* leerer Editor */
+    /* kein JSON */
+  }
+  if (json.includes("<") && json.includes(">")) {
+    return json;
   }
   return { type: "doc", content: [] };
 }
@@ -85,6 +88,11 @@ export function ArticleEditor({ content, onChange, className }: ArticleEditorPro
     if (!editor) return;
     if (content === lastEmitted.current) return;
     const doc = parseContent(content);
+    if (typeof doc === "string") {
+      editor.commands.setContent(doc, { emitUpdate: false });
+      lastEmitted.current = content;
+      return;
+    }
     const next = JSON.stringify(doc);
     const current = JSON.stringify(editor.getJSON());
     if (next !== current) {
