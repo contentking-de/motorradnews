@@ -7,6 +7,7 @@ import {
   CalendarDays,
   FileText,
   FolderOpen,
+  Globe,
   LayoutDashboard,
   LogOut,
   Users,
@@ -36,6 +37,12 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     { href: "/admin/artikel", label: "Artikel", icon: FileText },
     { href: "/admin/events", label: "Messen & Events", icon: CalendarDays },
     { href: "/admin/kategorien", label: "Kategorien", icon: FolderOpen },
+    {
+      href: "/admin/news-quellen",
+      label: "News-Quellen",
+      icon: Globe,
+      adminOnly: true,
+    },
     {
       href: "/admin/redakteure",
       label: "Redakteure",

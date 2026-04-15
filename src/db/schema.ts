@@ -70,6 +70,51 @@ export const articleTags = pgTable("article_tags", {
     .references(() => tags.id, { onDelete: "cascade" }),
 });
 
+export const sourceTypeEnum = pgEnum("source_type", ["RSS", "HTML"]);
+
+export const ingestedItemStatusEnum = pgEnum("ingested_item_status", [
+  "NEW",
+  "REWRITING",
+  "REWRITTEN",
+  "ARTICLE_CREATED",
+  "FAILED",
+  "SKIPPED",
+]);
+
+export const newsSources = pgTable("news_sources", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  url: text("url").notNull(),
+  feedUrl: text("feed_url"),
+  sourceType: sourceTypeEnum("source_type").notNull().default("RSS"),
+  isActive: boolean("is_active").notNull().default(true),
+  scrapeConfig: text("scrape_config"),
+  defaultCategoryId: uuid("default_category_id").references(() => categories.id),
+  defaultAuthorId: uuid("default_author_id").references(() => users.id),
+  lastCrawledAt: timestamp("last_crawled_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const ingestedItems = pgTable("ingested_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sourceId: uuid("source_id")
+    .notNull()
+    .references(() => newsSources.id, { onDelete: "cascade" }),
+  externalUrl: text("external_url").notNull(),
+  originalTitle: varchar("original_title", { length: 500 }),
+  originalBody: text("original_body"),
+  rewrittenTitle: varchar("rewritten_title", { length: 255 }),
+  rewrittenTeaser: text("rewritten_teaser"),
+  rewrittenBody: text("rewritten_body"),
+  status: ingestedItemStatusEnum("status").notNull().default("NEW"),
+  articleId: uuid("article_id").references(() => articles.id),
+  errorMessage: text("error_message"),
+  fetchedAt: timestamp("fetched_at").defaultNow().notNull(),
+  rewrittenAt: timestamp("rewritten_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const eventStatusEnum = pgEnum("event_status", [
   "DRAFT",
   "PUBLISHED",

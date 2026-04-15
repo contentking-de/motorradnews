@@ -6,6 +6,7 @@ import { LogOut, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function titleForPath(pathname: string): string {
+  if (pathname.startsWith("/admin/news-quellen")) return "News-Quellen";
   if (pathname.startsWith("/admin/artikel")) return "Artikel";
   if (pathname.startsWith("/admin/dashboard")) return "Dashboard";
   if (pathname.startsWith("/admin/kategorien")) return "Kategorien";
