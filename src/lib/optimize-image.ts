@@ -14,7 +14,9 @@ const QUALITY_STEP = 5;
 export async function optimizeImage(
   input: Buffer | ArrayBuffer | Uint8Array,
 ): Promise<Buffer> {
-  const buf = Buffer.isBuffer(input) ? input : Buffer.from(input);
+  const buf = Buffer.isBuffer(input)
+    ? input
+    : Buffer.from(input as ArrayBufferLike);
 
   const meta = await sharp(buf).metadata();
   const needsResize = (meta.width ?? 0) > TARGET_WIDTH;
