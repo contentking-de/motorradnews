@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
@@ -103,7 +104,19 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
           })}
         </nav>
 
-        <div className="border-t border-[#E5E5E5] p-3">
+        <div className="border-t border-[#E5E5E5] p-3 space-y-3">
+          <div className="px-3 py-2">
+            <p className="text-[10px] font-medium uppercase tracking-widest text-[#999999]">
+              motorrad.news powered by
+            </p>
+            <Image
+              src="/arider-logo.svg"
+              alt="aRider"
+              width={120}
+              height={32}
+              className="mt-2 h-8 w-auto"
+            />
+          </div>
           <button
             type="button"
             className={cn(

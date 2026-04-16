@@ -5,6 +5,7 @@ import { CategoryNav } from "@/components/public/CategoryNav";
 import { HeroArticle } from "@/components/public/HeroArticle";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
 import { PresseSidebar } from "@/components/public/PresseSidebar";
+import { PoweredBySidebar } from "@/components/public/PoweredBySidebar";
 import { categoryIconBySlug } from "@/lib/category-icons";
 import { categoryMetaBySlug } from "@/lib/category-meta";
 import { db } from "@/db";
@@ -160,6 +161,7 @@ export default async function HomePage() {
           </div>
           <UpcomingEventsSidebar />
           <PresseSidebar />
+          <PoweredBySidebar />
         </aside>
       </div>
     </>
