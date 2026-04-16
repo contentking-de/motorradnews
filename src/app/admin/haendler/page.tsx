@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MapPin, Pencil, Plus, Search, Store, Trash2, Upload } from "lucide-react";
+import { MapPin, Pencil, Plus, Search, Trash2, Upload } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Spinner from "@/components/ui/Spinner";
@@ -237,11 +237,21 @@ export default function DealersPage() {
                         <p className="mt-0.5 text-xs text-[#666666]">{d.phone}</p>
                       )}
                     </td>
-                    <td className="px-4 py-3 hidden sm:table-cell whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1.5 text-[#666666]">
-                        <Store className="size-3.5" />
-                        {d.brand}
-                      </span>
+                    <td className="px-4 py-3 hidden sm:table-cell max-w-[200px]">
+                      <div className="flex flex-wrap items-center gap-1">
+                        {d.brand
+                          .split(",")
+                          .map((b) => b.trim())
+                          .filter(Boolean)
+                          .map((b) => (
+                            <span
+                              key={b}
+                              className="inline-block rounded-full bg-[#F3F4F6] px-2 py-0.5 text-xs text-[#666666]"
+                            >
+                              {b}
+                            </span>
+                          ))}
+                      </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
                       <span className="inline-flex items-center gap-1.5 text-[#666666]">

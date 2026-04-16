@@ -100,15 +100,7 @@ export function DealerForm({ dealer }: DealerFormProps) {
       return;
     }
 
-    const payload = {
-      ...parsed.data,
-      street: parsed.data.street || null,
-      zip: parsed.data.zip || null,
-      phone: parsed.data.phone || null,
-      email: parsed.data.email || null,
-      website: parsed.data.website || null,
-      logoUrl: null,
-    };
+    const payload = parsed.data;
 
     setSubmitting(true);
     try {
