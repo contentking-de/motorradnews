@@ -63,9 +63,9 @@ export default function ArtikelPage() {
       if (!res.ok) {
         throw new Error("load_failed");
       }
-      const json: { data: AdminArticleRow[]; total: number } = await res.json();
-      setArticles(json.data);
-      setTotalArticles(json.total);
+      const json = await res.json() as { data?: AdminArticleRow[]; total?: number };
+      setArticles(json.data ?? []);
+      setTotalArticles(json.total ?? 0);
     } catch {
       setError("Artikel konnten nicht geladen werden.");
       setArticles([]);

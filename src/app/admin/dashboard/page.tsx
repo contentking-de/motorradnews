@@ -65,9 +65,9 @@ export default function DashboardPage() {
       ]);
       if (!articlesRes.ok) throw new Error("articles");
       if (!categoriesRes.ok) throw new Error("categories");
-      const articlesData: { data: ArticleApiRow[]; total: number } = await articlesRes.json();
+      const articlesData = await articlesRes.json() as { data?: ArticleApiRow[]; total?: number };
       const categoriesData: CategoryApiRow[] = await categoriesRes.json();
-      setArticles(articlesData.data);
+      setArticles(articlesData.data ?? []);
       setCategoryCount(categoriesData.length);
     } catch {
       setError("Daten konnten nicht geladen werden.");

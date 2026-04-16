@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       .innerJoin(users, eq(articles.authorId, users.id))
       .where(whereClause);
 
-    let query = db
+    const baseQuery = db
       .select({
         article: articles,
         categoryName: categories.name,
@@ -107,17 +107,12 @@ export async function GET(request: NextRequest) {
       .innerJoin(categories, eq(articles.categoryId, categories.id))
       .innerJoin(users, eq(articles.authorId, users.id))
       .where(whereClause)
-      .orderBy(desc(articles.createdAt))
-      .$dynamic();
+      .orderBy(desc(articles.createdAt));
 
-    if (limit !== undefined) {
-      query = query.limit(limit);
-    }
-    if (offset !== undefined) {
-      query = query.offset(offset);
-    }
-
-    const rows = await query;
+    const rows =
+      limit !== undefined
+        ? await baseQuery.limit(limit).offset(offset ?? 0)
+        : await baseQuery;
 
     return NextResponse.json({
       data: rows.map(mapArticleRow),
