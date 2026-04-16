@@ -49,7 +49,7 @@ export default async function EventsListingPage() {
         <div className="flex items-center gap-3">
           <CalendarDays className="size-7 shrink-0 text-[#E31E24]" />
           <h1 className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl">
-            Messen &amp; Events
+            Motorrad Termine, Messen und Events – Veranstaltungskalender
           </h1>
         </div>
         <SubmitEventModal />
