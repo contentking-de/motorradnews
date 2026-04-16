@@ -12,8 +12,8 @@ export type DealerFormDealer = {
   name: string;
   slug: string;
   brand: string;
-  street: string;
-  zip: string;
+  street: string | null;
+  zip: string | null;
   city: string;
   phone: string | null;
   email: string | null;
@@ -25,6 +25,13 @@ export type DealerFormDealer = {
 const selectClass =
   "w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#111111] focus:outline-none focus:ring-2 focus:ring-[#E31E24] focus:border-transparent transition-colors";
 
+function parseBrands(raw: string): string[] {
+  return raw
+    .split(",")
+    .map((b) => b.trim())
+    .filter(Boolean);
+}
+
 interface DealerFormProps {
   dealer?: DealerFormDealer;
 }
@@ -35,7 +42,9 @@ export function DealerForm({ dealer }: DealerFormProps) {
 
   const [name, setName] = useState(dealer?.name ?? "");
   const [slug, setSlug] = useState(dealer?.slug ?? "");
-  const [brand, setBrand] = useState(dealer?.brand ?? "Yamaha");
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(
+    dealer?.brand ? parseBrands(dealer.brand) : ["Yamaha"],
+  );
   const [street, setStreet] = useState(dealer?.street ?? "");
   const [zip, setZip] = useState(dealer?.zip ?? "");
   const [city, setCity] = useState(dealer?.city ?? "");
@@ -58,15 +67,25 @@ export function DealerForm({ dealer }: DealerFormProps) {
     setSlug(v);
   };
 
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((prev) =>
+      prev.includes(brand)
+        ? prev.filter((b) => b !== brand)
+        : [...prev, brand],
+    );
+  };
+
   const handleSubmit = async () => {
     setError(null);
+
+    const brandString = selectedBrands.join(", ");
 
     const parsed = dealerSchema.safeParse({
       name: name.trim(),
       slug: slug.trim(),
-      brand: brand.trim(),
-      street: street.trim(),
-      zip: zip.trim(),
+      brand: brandString,
+      street: street.trim() || "",
+      zip: zip.trim() || "",
       city: city.trim(),
       phone: phone.trim() || "",
       email: email.trim() || "",
@@ -83,6 +102,8 @@ export function DealerForm({ dealer }: DealerFormProps) {
 
     const payload = {
       ...parsed.data,
+      street: parsed.data.street || null,
+      zip: parsed.data.zip || null,
       phone: parsed.data.phone || null,
       email: parsed.data.email || null,
       website: parsed.data.website || null,
@@ -140,27 +161,34 @@ export function DealerForm({ dealer }: DealerFormProps) {
         spellCheck={false}
       />
 
-      <div className="w-full">
-        <label
-          htmlFor="dealer-brand"
-          className="mb-1 block text-sm font-display font-semibold text-[#111111]"
-        >
-          Marke
-        </label>
-        <select
-          id="dealer-brand"
-          className={selectClass}
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-          required
-        >
+      <fieldset className="space-y-3 rounded-lg border border-[#E5E5E5] p-4">
+        <legend className="font-display text-sm font-bold text-[#111111] px-1">
+          Marken
+        </legend>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
           {DEALER_BRANDS.map((b) => (
-            <option key={b} value={b}>
+            <label
+              key={b}
+              className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                selectedBrands.includes(b)
+                  ? "border-[#E31E24] bg-[#E31E24]/5 text-[#111111] font-medium"
+                  : "border-[#E5E5E5] text-[#666666] hover:border-[#CCCCCC]"
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={selectedBrands.includes(b)}
+                onChange={() => toggleBrand(b)}
+                className="accent-[#E31E24]"
+              />
               {b}
-            </option>
+            </label>
           ))}
-        </select>
-      </div>
+        </div>
+        {selectedBrands.length === 0 && (
+          <p className="text-xs text-red-600">Bitte mindestens eine Marke wählen.</p>
+        )}
+      </fieldset>
 
       <fieldset className="space-y-4 rounded-lg border border-[#E5E5E5] p-4">
         <legend className="font-display text-sm font-bold text-[#111111] px-1">
@@ -168,19 +196,17 @@ export function DealerForm({ dealer }: DealerFormProps) {
         </legend>
         <Input
           id="dealer-street"
-          label="Straße"
+          label="Straße (optional)"
           value={street}
           onChange={(e) => setStreet(e.target.value)}
-          required
           maxLength={255}
         />
         <div className="grid gap-4 sm:grid-cols-3">
           <Input
             id="dealer-zip"
-            label="PLZ"
+            label="PLZ (optional)"
             value={zip}
             onChange={(e) => setZip(e.target.value)}
-            required
             maxLength={10}
           />
           <div className="sm:col-span-2">

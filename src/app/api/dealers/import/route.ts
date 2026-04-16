@@ -6,11 +6,54 @@ import { eq } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
 
+const BRAND_ALIASES: Record<string, string> = {
+  HUSQV: "Husqvarna",
+  HUSQVARNA: "Husqvarna",
+  MVAGUSTA: "MV Agusta",
+  "MV AGUSTA": "MV Agusta",
+  "HARLEY-DAVIDSON": "Harley-Davidson",
+  HARLEY: "Harley-Davidson",
+  "ROYAL ENFIELD": "Royal Enfield",
+  YAMAHA: "Yamaha",
+  KTM: "KTM",
+  GASGAS: "GASGAS",
+  BMW: "BMW",
+  HONDA: "Honda",
+  KAWASAKI: "Kawasaki",
+  SUZUKI: "Suzuki",
+  DUCATI: "Ducati",
+  TRIUMPH: "Triumph",
+  APRILIA: "Aprilia",
+  INDIAN: "Indian",
+  BETA: "Beta",
+  FANTIC: "Fantic",
+  CFMOTO: "CFMOTO",
+  ZERO: "Zero",
+  VESPA: "Vespa",
+  BUELL: "Buell",
+  MASH: "Mash",
+  SYM: "SYM",
+  KEEWAY: "Keeway",
+  PEUGEOT: "Peugeot",
+  CCM: "CCM",
+  SPEEDFIGHT: "Peugeot",
+};
+
+function normalizeBrands(raw: string): string {
+  return raw
+    .split(",")
+    .map((b) => b.trim())
+    .filter(Boolean)
+    .map((b) => BRAND_ALIASES[b.toUpperCase()] ?? b)
+    .filter((v, i, a) => a.indexOf(v) === i)
+    .join(", ");
+}
+
 const rowSchema = z.object({
   name: z.string().min(1),
   brand: z.string().min(1),
-  street: z.string().min(1),
-  zip: z.coerce.string().min(1),
+  street: z.string().optional().default(""),
+  zip: z.coerce.string().optional().default(""),
   city: z.string().min(1),
   phone: z.string().optional(),
   email: z.string().optional(),
@@ -52,6 +95,8 @@ export async function POST(request: NextRequest) {
 
   for (const row of rows) {
     try {
+      const normalizedBrand = normalizeBrands(row.brand);
+
       let slug = slugify(row.name);
       const [existing] = await db
         .select({ id: dealers.id })
@@ -59,15 +104,18 @@ export async function POST(request: NextRequest) {
         .where(eq(dealers.slug, slug))
         .limit(1);
       if (existing) {
-        slug = `${slug}-${String(row.zip).padStart(5, "0")}`;
+        const zipPart = row.zip
+          ? String(row.zip).padStart(5, "0")
+          : row.city.toLowerCase().replace(/\s+/g, "-");
+        slug = `${slug}-${zipPart}`;
       }
 
       await db.insert(dealers).values({
         name: row.name,
         slug,
-        brand: row.brand,
-        street: row.street,
-        zip: String(row.zip).padStart(5, "0"),
+        brand: normalizedBrand,
+        street: row.street || null,
+        zip: row.zip ? String(row.zip).padStart(5, "0") : null,
         city: row.city,
         phone: row.phone || null,
         email: row.email || null,

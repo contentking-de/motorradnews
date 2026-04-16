@@ -44,15 +44,42 @@ export const eventSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
 });
 
-export const DEALER_BRANDS = ["Yamaha", "KTM", "Husqvarna"] as const;
+export const DEALER_BRANDS = [
+  "Yamaha",
+  "KTM",
+  "Husqvarna",
+  "GASGAS",
+  "BMW",
+  "Honda",
+  "Kawasaki",
+  "Suzuki",
+  "Ducati",
+  "Triumph",
+  "Aprilia",
+  "MV Agusta",
+  "Royal Enfield",
+  "Harley-Davidson",
+  "Indian",
+  "Beta",
+  "Fantic",
+  "CFMOTO",
+  "Zero",
+  "Vespa",
+  "Buell",
+  "Mash",
+  "SYM",
+  "Keeway",
+  "Peugeot",
+  "CCM",
+] as const;
 export type DealerBrand = (typeof DEALER_BRANDS)[number];
 
 export const dealerSchema = z.object({
   name: z.string().min(1, "Händlername ist erforderlich").max(255),
   slug: z.string().min(1, "Slug ist erforderlich").max(255),
-  brand: z.enum(DEALER_BRANDS, { errorMap: () => ({ message: "Bitte eine Marke wählen" }) }),
-  street: z.string().min(1, "Straße ist erforderlich").max(255),
-  zip: z.string().min(1, "PLZ ist erforderlich").max(10),
+  brand: z.string().min(1, "Bitte mindestens eine Marke angeben"),
+  street: z.string().max(255).optional().or(z.literal("")),
+  zip: z.string().max(10).optional().or(z.literal("")),
   city: z.string().min(1, "Ort ist erforderlich").max(100),
   phone: z.string().max(50).optional().or(z.literal("")),
   email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),

@@ -93,8 +93,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (patch.name !== undefined) updateValues.name = patch.name;
     if (patch.slug !== undefined) updateValues.slug = patch.slug;
     if (patch.brand !== undefined) updateValues.brand = patch.brand;
-    if (patch.street !== undefined) updateValues.street = patch.street;
-    if (patch.zip !== undefined) updateValues.zip = patch.zip;
+    if (patch.street !== undefined) updateValues.street = patch.street || null;
+    if (patch.zip !== undefined) updateValues.zip = patch.zip || null;
     if (patch.city !== undefined) updateValues.city = patch.city;
     if (patch.phone !== undefined) updateValues.phone = patch.phone || null;
     if (patch.email !== undefined) updateValues.email = patch.email || null;

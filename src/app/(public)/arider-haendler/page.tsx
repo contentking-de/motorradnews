@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Phone, Mail, Globe, Store, Search } from "lucide-react";
+import { MapPin, Phone, Store } from "lucide-react";
 import { db } from "@/db";
 import { dealers } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, and, ilike, or } from "drizzle-orm";
+import { Suspense } from "react";
+import DealerSearch from "@/components/public/DealerSearch";
 
 export const revalidate = 60;
 
@@ -14,16 +16,52 @@ export const metadata: Metadata = {
     "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
 };
 
-export default async function DealersListingPage() {
+type Props = {
+  searchParams: Promise<{ q?: string; brand?: string }>;
+};
+
+export default async function DealersListingPage({ searchParams }: Props) {
+  const { q, brand } = await searchParams;
+  const searchTerm = q?.trim() ?? "";
+  const brandFilter = brand?.trim() ?? "";
+
   const allDealers = await db
     .select()
     .from(dealers)
     .where(eq(dealers.isActive, true))
     .orderBy(asc(dealers.zip));
 
-  const grouped = new Map<string, typeof allDealers>();
-  for (const d of allDealers) {
-    const prefix = d.zip.slice(0, 1);
+  const allBrands = [
+    ...new Set(
+      allDealers.flatMap((d) =>
+        d.brand
+          ? d.brand.split(",").map((b) => b.trim()).filter(Boolean)
+          : [],
+      ),
+    ),
+  ].sort();
+
+  const filtered = allDealers.filter((d) => {
+    if (brandFilter) {
+      const dealerBrands = d.brand
+        ? d.brand.split(",").map((b) => b.trim().toLowerCase())
+        : [];
+      if (!dealerBrands.includes(brandFilter.toLowerCase())) return false;
+    }
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      const haystack = [d.name, d.city, d.zip, d.street, d.brand]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(term)) return false;
+    }
+    return true;
+  });
+
+  const grouped = new Map<string, typeof filtered>();
+  for (const d of filtered) {
+    const prefix = d.zip ? d.zip.slice(0, 1) : "?";
     const region = regionName(prefix);
     if (!grouped.has(region)) grouped.set(region, []);
     grouped.get(region)!.push(d);
@@ -51,9 +89,19 @@ export default async function DealersListingPage() {
         </div>
       </div>
 
-      {allDealers.length === 0 ? (
+      <Suspense fallback={null}>
+        <DealerSearch
+          brands={allBrands}
+          totalCount={allDealers.length}
+          filteredCount={filtered.length}
+        />
+      </Suspense>
+
+      {filtered.length === 0 ? (
         <p className="mt-10 text-center text-lg text-[#666666]">
-          Aktuell sind keine Händler gelistet.
+          {searchTerm || brandFilter
+            ? "Keine Händler für diese Suche gefunden."
+            : "Aktuell sind keine Händler gelistet."}
         </p>
       ) : (
         <div className="mt-10 space-y-12">
@@ -86,9 +134,13 @@ export default async function DealersListingPage() {
                     <div className="mt-3 flex items-start gap-2 text-sm text-[#666666]">
                       <MapPin className="mt-0.5 size-4 shrink-0 text-[#999999]" />
                       <span>
-                        {d.street}
-                        <br />
-                        {d.zip} {d.city}
+                        {d.street && (
+                          <>
+                            {d.street}
+                            <br />
+                          </>
+                        )}
+                        {d.zip ? `${d.zip} ${d.city}` : d.city}
                       </span>
                     </div>
                     {d.phone && (
@@ -120,6 +172,7 @@ function regionName(plzPrefix: string): string {
     "7": "Baden-Württemberg",
     "8": "Bayern (Süd)",
     "9": "Bayern (Nord) / Thüringen",
+    "?": "Ohne PLZ-Zuordnung",
   };
   return regions[plzPrefix] ?? `PLZ-Bereich ${plzPrefix}`;
 }

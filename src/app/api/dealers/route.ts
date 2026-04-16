@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       conditions.push(ilike(dealers.city, `%${city}%`));
     }
     if (brand) {
-      conditions.push(eq(dealers.brand, brand));
+      conditions.push(ilike(dealers.brand, `%${brand}%`));
     }
     if (activeOnly === "true") {
       conditions.push(eq(dealers.isActive, true));
@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
         name: data.name,
         slug: data.slug || slugify(data.name),
         brand: data.brand,
-        street: data.street,
-        zip: data.zip,
+        street: data.street || null,
+        zip: data.zip || null,
         city: data.city,
         phone: data.phone || null,
         email: data.email || null,

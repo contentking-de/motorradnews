@@ -88,13 +88,13 @@ export default function DealersPage() {
 
       const mapped = rows.map((r) => ({
         name: r["Händlername"] || r["name"] || "",
-        brand: r["Marke"] || r["brand"] || "Yamaha",
+        brand: r["Marken"] || r["Marke"] || r["brand"] || "Yamaha",
         street: r["Straße"] || r["street"] || "",
         zip: String(r["PLZ"] || r["zip"] || ""),
         city: r["Ort"] || r["city"] || "",
-        phone: r["Telefon"] || r["phone"] || "",
+        phone: r["Telefonnummer"] || r["Telefon"] || r["phone"] || "",
         email: r["E-Mail"] || r["email"] || "",
-        website: r["Website"] || r["website"] || "",
+        website: r["Webseite"] || r["Website"] || r["website"] || "",
       }));
 
       const res = await fetch("/api/dealers/import", {
