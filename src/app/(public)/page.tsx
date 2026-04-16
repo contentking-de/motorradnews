@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Sparkles, Gauge, Wrench, Compass, Flag, CalendarDays } from "lucide-react";
-import { ArticleGrid } from "@/components/public/ArticleGrid";
+import { CategorySection } from "@/components/public/CategorySection";
 import { CategoryNav } from "@/components/public/CategoryNav";
 import { HeroArticle } from "@/components/public/HeroArticle";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
 import { PresseSidebar } from "@/components/public/PresseSidebar";
 import { categoryIconBySlug } from "@/lib/category-icons";
+import { categoryMetaBySlug } from "@/lib/category-meta";
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
 import { and, asc, count, desc, eq, isNotNull } from "drizzle-orm";
+import { sortByPrioritySlugs } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: {
@@ -26,154 +27,141 @@ const publishedCondition = and(
 );
 
 export default async function HomePage() {
-  const [articleRows, categoriesWithCounts, navCategories] = await Promise.all([
-    db
-      .select()
-      .from(articles)
-      .innerJoin(categories, eq(articles.categoryId, categories.id))
-      .innerJoin(users, eq(articles.authorId, users.id))
-      .where(publishedCondition)
-      .orderBy(desc(articles.publishedAt))
-      .limit(13),
-    db
-      .select({
-        id: categories.id,
-        name: categories.name,
-        slug: categories.slug,
-        sortOrder: categories.sortOrder,
-        articleCount: count(articles.id),
-      })
-      .from(categories)
-      .leftJoin(
-        articles,
-        and(eq(articles.categoryId, categories.id), eq(articles.status, "PUBLISHED")),
-      )
-      .groupBy(
-        categories.id,
-        categories.name,
-        categories.slug,
-        categories.sortOrder,
-      )
-      .orderBy(asc(categories.sortOrder)),
-    db
-      .select({
-        name: categories.name,
-        slug: categories.slug,
-      })
-      .from(categories)
-      .orderBy(asc(categories.sortOrder)),
-  ]);
+  const allCategories = await db
+    .select()
+    .from(categories)
+    .orderBy(asc(categories.sortOrder));
 
-  const hasArticles = articleRows.length > 0;
-  const heroArticle = articleRows[0] ? mapRowToPublicArticle(articleRows[0]) : null;
-  const gridArticles = articleRows.slice(1).map(mapRowToPublicArticle);
+  const [heroRow, categoriesWithCounts, navCategories, ...categoryArticleResults] =
+    await Promise.all([
+      db
+        .select()
+        .from(articles)
+        .innerJoin(categories, eq(articles.categoryId, categories.id))
+        .innerJoin(users, eq(articles.authorId, users.id))
+        .where(publishedCondition)
+        .orderBy(desc(articles.publishedAt))
+        .limit(1)
+        .then((rows) => rows[0] ?? null),
+      db
+        .select({
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          sortOrder: categories.sortOrder,
+          articleCount: count(articles.id),
+        })
+        .from(categories)
+        .leftJoin(
+          articles,
+          and(eq(articles.categoryId, categories.id), eq(articles.status, "PUBLISHED")),
+        )
+        .groupBy(
+          categories.id,
+          categories.name,
+          categories.slug,
+          categories.sortOrder,
+        )
+        .orderBy(asc(categories.sortOrder)),
+      db
+        .select({ name: categories.name, slug: categories.slug })
+        .from(categories)
+        .orderBy(asc(categories.sortOrder)),
+      ...allCategories.map((cat) =>
+        db
+          .select()
+          .from(articles)
+          .innerJoin(categories, eq(articles.categoryId, categories.id))
+          .innerJoin(users, eq(articles.authorId, users.id))
+          .where(and(publishedCondition, eq(articles.categoryId, cat.id)))
+          .orderBy(desc(articles.publishedAt))
+          .limit(3),
+      ),
+    ]);
 
-  const categoryNavItems = navCategories.map((c) => ({
-    name: c.name,
-    slug: c.slug,
-  }));
+  const heroArticle = heroRow ? mapRowToPublicArticle(heroRow) : null;
+
+  const categorySections = sortByPrioritySlugs(
+    allCategories.map((cat, i) => {
+      const rows = categoryArticleResults[i] ?? [];
+      const meta = categoryMetaBySlug[cat.slug];
+      return {
+        slug: cat.slug,
+        heading: meta?.heading ?? cat.name,
+        subtext: meta?.subtext ?? cat.description ?? "",
+        articles: rows.map(mapRowToPublicArticle),
+      };
+    }),
+  );
+
+  const categoryNavItems = sortByPrioritySlugs(
+    navCategories.map((c) => ({
+      name: c.name,
+      slug: c.slug,
+    })),
+  );
+
+  const hasAnyArticles = categorySections.some((s) => s.articles.length > 0);
 
   return (
     <>
-      {heroArticle ? <HeroArticle article={heroArticle} /> : null}
+      {heroArticle && <HeroArticle article={heroArticle} />}
       <CategoryNav categories={categoryNavItems} />
+
       <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:flex lg:gap-10 lg:px-8 lg:py-12">
         <div className="min-w-0 flex-1">
-          {!hasArticles ? (
+          {!hasAnyArticles ? (
             <p className="font-display text-center text-lg text-[#666666]">
               Noch keine Artikel veröffentlicht.
             </p>
-          ) : gridArticles.length > 0 ? (
-            <ArticleGrid articles={gridArticles} />
-          ) : null}
+          ) : (
+            <div className="space-y-12">
+              {categorySections.map((section) => (
+                <CategorySection
+                  key={section.slug}
+                  slug={section.slug}
+                  heading={section.heading}
+                  subtext={section.subtext}
+                  articles={section.articles}
+                  icon={categoryIconBySlug[section.slug]}
+                />
+              ))}
+            </div>
+          )}
         </div>
+
         <aside
-          className="mt-10 hidden shrink-0 space-y-8 lg:mt-0 lg:block lg:w-56 xl:w-64"
+          className="mt-10 hidden shrink-0 space-y-8 lg:sticky lg:top-24 lg:mt-0 lg:block lg:w-56 lg:self-start xl:w-64"
           aria-label="Kategorien mit Artikelanzahl"
         >
-          <h2 className="font-display text-base font-bold uppercase tracking-wide text-[#111111]">
-            Themen
-          </h2>
-          <ul className="mt-4 space-y-2 border-t border-[#E5E5E5] pt-4">
-            {categoriesWithCounts.map((c) => {
-              const Icon = categoryIconBySlug[c.slug];
-              return (
-                <li key={c.slug}>
-                  <Link
-                    href={`/${c.slug}`}
-                    className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm text-[#111111] transition-colors hover:bg-[#F9F9F9] hover:text-[#E31E24]"
-                  >
-                    <span className="flex items-center gap-2 font-medium">
-                      {Icon && <Icon className="size-4 shrink-0 opacity-70" aria-hidden />}
-                      {c.name}
-                    </span>
-                    <span className="tabular-nums text-[#666666]">{Number(c.articleCount)}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <div>
+            <h2 className="font-display text-base font-bold uppercase tracking-wide text-[#111111]">
+              Themen
+            </h2>
+            <ul className="mt-4 space-y-2 border-t border-[#E5E5E5] pt-4">
+              {sortByPrioritySlugs(categoriesWithCounts).map((c) => {
+                const Icon = categoryIconBySlug[c.slug];
+                return (
+                  <li key={c.slug}>
+                    <Link
+                      href={`/${c.slug}`}
+                      className="flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm text-[#111111] transition-colors hover:bg-[#F9F9F9] hover:text-[#E31E24]"
+                    >
+                      <span className="flex items-center gap-2 font-medium">
+                        {Icon && <Icon className="size-4 shrink-0 opacity-70" aria-hidden />}
+                        {c.name}
+                      </span>
+                      <span className="tabular-nums text-[#666666]">{Number(c.articleCount)}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <UpcomingEventsSidebar />
           <PresseSidebar />
         </aside>
       </div>
-
-      <section className="border-t border-[#E5E5E5] bg-[#F9F9F9]">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl">
-            Willkommen bei motorrad<span className="text-[#E31E24]">.news</span>
-          </h2>
-          <p className="mt-4 max-w-3xl text-base leading-relaxed text-[#444444] sm:text-lg">
-            Dein digitales Zuhause für alles rund ums Motorrad. Wir liefern dir täglich
-            aktuelle Nachrichten, fundierte Testberichte und spannende Reisereportagen aus
-            der Welt auf zwei Rädern.
-          </p>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg border border-[#E5E5E5] bg-white p-6">
-              <Sparkles className="size-7 text-[#E31E24]" aria-hidden />
-              <h3 className="font-display mt-3 text-lg font-bold text-[#111111]">News &amp; Neuheiten</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#666666]">
-                Neue Modelle, Rückrufe, Branchennews und alles, was die Motorrad-Welt bewegt — kompakt und aktuell.
-              </p>
-            </div>
-            <div className="rounded-lg border border-[#E5E5E5] bg-white p-6">
-              <Gauge className="size-7 text-[#E31E24]" aria-hidden />
-              <h3 className="font-display mt-3 text-lg font-bold text-[#111111]">Tests &amp; Fahrberichte</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#666666]">
-                Ehrliche Testberichte, Vergleichstests und Erfahrungen aus erster Hand — damit du das richtige Bike findest.
-              </p>
-            </div>
-            <div className="rounded-lg border border-[#E5E5E5] bg-white p-6">
-              <Compass className="size-7 text-[#E31E24]" aria-hidden />
-              <h3 className="font-display mt-3 text-lg font-bold text-[#111111]">Reiseberichte &amp; Touren</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#666666]">
-                Inspirierende Reiserouten, Tourentipps und Erlebnisse von Bikern für Biker — von Alpenpass bis Küstenstraße.
-              </p>
-            </div>
-            <div className="rounded-lg border border-[#E5E5E5] bg-white p-6">
-              <Wrench className="size-7 text-[#E31E24]" aria-hidden />
-              <h3 className="font-display mt-3 text-lg font-bold text-[#111111]">Tipps &amp; Ratgeber</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#666666]">
-                Praxisnahe Technik-Tipps, Pflegeanleitungen und Ratgeber rund um Wartung, Zubehör und Ausrüstung.
-              </p>
-            </div>
-            <div className="rounded-lg border border-[#E5E5E5] bg-white p-6">
-              <CalendarDays className="size-7 text-[#E31E24]" aria-hidden />
-              <h3 className="font-display mt-3 text-lg font-bold text-[#111111]">Messen &amp; Events</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#666666]">
-                Messekalender, Motorradtreffen und Events — verpasse keine Veranstaltung in deiner Nähe.
-              </p>
-            </div>
-            <div className="rounded-lg border border-[#E5E5E5] bg-white p-6">
-              <Flag className="size-7 text-[#E31E24]" aria-hidden />
-              <h3 className="font-display mt-3 text-lg font-bold text-[#111111]">Motorsport</h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#666666]">
-                MotoGP, Superbike-WM und nationale Rennserien — Ergebnisse, Analysen und Hintergründe vom Rennsport.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

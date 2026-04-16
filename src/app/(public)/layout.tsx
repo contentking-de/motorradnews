@@ -5,6 +5,7 @@ import { ConsentProvider } from "@/lib/consent";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 import { asc } from "drizzle-orm";
+import { sortByPrioritySlugs } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -15,13 +16,15 @@ export default async function PublicLayout({
 }>) {
   let headerCategories: { name: string; slug: string }[] = [];
   try {
-    headerCategories = await db
-      .select({
-        name: categories.name,
-        slug: categories.slug,
-      })
-      .from(categories)
-      .orderBy(asc(categories.sortOrder));
+    headerCategories = sortByPrioritySlugs(
+      await db
+        .select({
+          name: categories.name,
+          slug: categories.slug,
+        })
+        .from(categories)
+        .orderBy(asc(categories.sortOrder)),
+    );
   } catch {
     headerCategories = [];
   }

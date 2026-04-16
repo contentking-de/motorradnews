@@ -43,3 +43,16 @@ export function truncate(text: string, length: number = 160): string {
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
+
+const PRIORITY_SLUGS = ["motorsport", "offroad"];
+
+export function sortByPrioritySlugs<T extends { slug: string }>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    const aIdx = PRIORITY_SLUGS.indexOf(a.slug);
+    const bIdx = PRIORITY_SLUGS.indexOf(b.slug);
+    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+    if (aIdx !== -1) return -1;
+    if (bIdx !== -1) return 1;
+    return 0;
+  });
+}
