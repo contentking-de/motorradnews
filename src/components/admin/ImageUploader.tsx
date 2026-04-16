@@ -159,6 +159,7 @@ export function ImageUploader({
             </p>
             <p className="mt-1 text-xs text-[#666666]">
               Klicken oder Datei hierher ziehen — JPG, PNG, GIF, WebP bis 10 MB
+              {"\n"}(wird automatisch auf 1280px / WebP optimiert)
             </p>
           </div>
         </button>

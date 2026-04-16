@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse, NextRequest } from "next/server";
 import { put, del } from "@vercel/blob";
+import { optimizeImage } from "@/lib/optimize-image";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -10,6 +11,10 @@ const ALLOWED_TYPES = new Set([
   "image/gif",
   "image/webp",
 ]);
+
+function replaceExtension(filename: string): string {
+  return filename.replace(/\.[^.]+$/, ".webp");
+}
 
 export async function POST(request: NextRequest) {
   const session = await auth();
@@ -51,8 +56,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const blob = await put(`artikel/${file.name}`, file, {
+    const arrayBuffer = await file.arrayBuffer();
+    const optimized = await optimizeImage(arrayBuffer);
+    const webpName = replaceExtension(file.name);
+
+    const blob = await put(`artikel/${webpName}`, optimized, {
       access: "public",
+      contentType: "image/webp",
       addRandomSuffix: true,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     });
