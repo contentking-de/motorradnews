@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { auth } from "@/lib/auth";
-import { eq, desc, and, ilike } from "drizzle-orm";
+import { eq, desc, and, ilike, count } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -48,6 +48,8 @@ export async function GET(request: NextRequest) {
     const categoryId = searchParams.get("categoryId");
     const search = searchParams.get("search");
     const authorId = searchParams.get("authorId");
+    const limitParam = searchParams.get("limit");
+    const offsetParam = searchParams.get("offset");
 
     const conditions = [];
     if (status) {
@@ -85,7 +87,17 @@ export async function GET(request: NextRequest) {
     const whereClause =
       conditions.length > 0 ? and(...conditions) : undefined;
 
-    const rows = await db
+    const limit = limitParam ? Math.max(1, Math.min(100, Number(limitParam))) : undefined;
+    const offset = offsetParam ? Math.max(0, Number(offsetParam)) : undefined;
+
+    const [totalResult] = await db
+      .select({ value: count() })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .innerJoin(users, eq(articles.authorId, users.id))
+      .where(whereClause);
+
+    let query = db
       .select({
         article: articles,
         categoryName: categories.name,
@@ -95,9 +107,22 @@ export async function GET(request: NextRequest) {
       .innerJoin(categories, eq(articles.categoryId, categories.id))
       .innerJoin(users, eq(articles.authorId, users.id))
       .where(whereClause)
-      .orderBy(desc(articles.createdAt));
+      .orderBy(desc(articles.createdAt))
+      .$dynamic();
 
-    return NextResponse.json(rows.map(mapArticleRow));
+    if (limit !== undefined) {
+      query = query.limit(limit);
+    }
+    if (offset !== undefined) {
+      query = query.offset(offset);
+    }
+
+    const rows = await query;
+
+    return NextResponse.json({
+      data: rows.map(mapArticleRow),
+      total: totalResult?.value ?? 0,
+    });
   } catch (e) {
     console.error(e);
     return NextResponse.json(
