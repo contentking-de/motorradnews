@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { slugify } from "@/lib/utils";
-import { dealerSchema } from "@/lib/validations";
+import { dealerSchema, DEALER_BRANDS } from "@/lib/validations";
 
 export type DealerFormDealer = {
   id: string;
@@ -140,14 +140,27 @@ export function DealerForm({ dealer }: DealerFormProps) {
         spellCheck={false}
       />
 
-      <Input
-        id="dealer-brand"
-        label="Marke"
-        value={brand}
-        onChange={(e) => setBrand(e.target.value)}
-        required
-        maxLength={100}
-      />
+      <div className="w-full">
+        <label
+          htmlFor="dealer-brand"
+          className="mb-1 block text-sm font-display font-semibold text-[#111111]"
+        >
+          Marke
+        </label>
+        <select
+          id="dealer-brand"
+          className={selectClass}
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+          required
+        >
+          {DEALER_BRANDS.map((b) => (
+            <option key={b} value={b}>
+              {b}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <fieldset className="space-y-4 rounded-lg border border-[#E5E5E5] p-4">
         <legend className="font-display text-sm font-bold text-[#111111] px-1">
