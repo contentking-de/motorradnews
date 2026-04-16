@@ -38,6 +38,9 @@ SPEC.md
 *.md
 !README.md
 
+# scripts (research, data migration etc.)
+/scripts/
+
 # vercel
 .vercel
 
