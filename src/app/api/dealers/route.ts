@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
         phone: data.phone || null,
         email: data.email || null,
         website: data.website || null,
+        description: data.description || null,
         logoUrl: data.logoUrl || null,
         isActive: data.isActive ?? true,
         updatedAt: now,

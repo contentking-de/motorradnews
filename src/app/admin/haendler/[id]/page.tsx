@@ -28,6 +28,7 @@ export default async function EditDealerPage({
     phone: raw.phone,
     email: raw.email,
     website: raw.website,
+    description: raw.description,
     logoUrl: raw.logoUrl,
     isActive: raw.isActive,
   };

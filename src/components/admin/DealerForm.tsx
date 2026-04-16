@@ -18,6 +18,7 @@ export type DealerFormDealer = {
   phone: string | null;
   email: string | null;
   website: string | null;
+  description: string | null;
   logoUrl: string | null;
   isActive: boolean;
 };
@@ -51,6 +52,7 @@ export function DealerForm({ dealer }: DealerFormProps) {
   const [phone, setPhone] = useState(dealer?.phone ?? "");
   const [email, setEmail] = useState(dealer?.email ?? "");
   const [website, setWebsite] = useState(dealer?.website ?? "");
+  const [description, setDescription] = useState(dealer?.description ?? "");
   const [isActive, setIsActive] = useState(dealer?.isActive ?? true);
 
   const slugTouchedRef = useRef(false);
@@ -90,6 +92,7 @@ export function DealerForm({ dealer }: DealerFormProps) {
       phone: phone.trim() || "",
       email: email.trim() || "",
       website: website.trim() || "",
+      description: description.trim() || "",
       logoUrl: "",
       isActive,
     });
@@ -241,6 +244,24 @@ export function DealerForm({ dealer }: DealerFormProps) {
           placeholder="https://…"
         />
       </fieldset>
+
+      <div className="w-full">
+        <label
+          htmlFor="dealer-description"
+          className="mb-1 block text-sm font-display font-semibold text-[#111111]"
+        >
+          Beschreibung (optional)
+        </label>
+        <textarea
+          id="dealer-description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={5}
+          maxLength={5000}
+          placeholder="Profil / Beschreibung des Händlers…"
+          className="w-full rounded-lg border border-[#E5E5E5] bg-white px-3 py-2 text-sm text-[#111111] placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#E31E24] focus:border-transparent transition-colors"
+        />
+      </div>
 
       <div className="w-full">
         <label

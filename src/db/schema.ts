@@ -126,6 +126,7 @@ export const dealers = pgTable("dealers", {
   phone: varchar("phone", { length: 50 }),
   email: varchar("email", { length: 255 }),
   website: text("website"),
+  description: text("description"),
   logoUrl: text("logo_url"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),

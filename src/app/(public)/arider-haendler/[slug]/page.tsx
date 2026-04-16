@@ -238,6 +238,16 @@ export default async function DealerDetailPage({ params }: Props) {
                   </div>
                 </section>
               )}
+              {d.description && (
+                <section>
+                  <h2 className="font-display text-sm font-bold uppercase tracking-wide text-[#111111] mb-3">
+                    Über den Händler
+                  </h2>
+                  <p className="text-[#444444] text-sm leading-relaxed whitespace-pre-line">
+                    {d.description}
+                  </p>
+                </section>
+              )}
             </div>
 
             <div className="border-t border-[#E5E5E5] p-6 sm:p-8 lg:col-span-3 lg:border-l lg:border-t-0">

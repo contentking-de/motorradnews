@@ -100,6 +100,8 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (patch.email !== undefined) updateValues.email = patch.email || null;
     if (patch.website !== undefined)
       updateValues.website = patch.website || null;
+    if (patch.description !== undefined)
+      updateValues.description = patch.description || null;
     if (patch.logoUrl !== undefined)
       updateValues.logoUrl = patch.logoUrl || null;
     if (patch.isActive !== undefined) updateValues.isActive = patch.isActive;
