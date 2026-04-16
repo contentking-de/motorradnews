@@ -7,5 +7,6 @@ export const config = {
     "/admin/kategorien/:path*",
     "/admin/news-quellen/:path*",
     "/admin/redakteure/:path*",
+    "/admin/haendler/:path*",
   ],
 };

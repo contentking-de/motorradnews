@@ -44,8 +44,23 @@ export const eventSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
 });
 
+export const dealerSchema = z.object({
+  name: z.string().min(1, "Händlername ist erforderlich").max(255),
+  slug: z.string().min(1, "Slug ist erforderlich").max(255),
+  brand: z.string().min(1, "Marke ist erforderlich").max(100),
+  street: z.string().min(1, "Straße ist erforderlich").max(255),
+  zip: z.string().min(1, "PLZ ist erforderlich").max(10),
+  city: z.string().min(1, "Ort ist erforderlich").max(100),
+  phone: z.string().max(50).optional().or(z.literal("")),
+  email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),
+  website: z.string().url("Ungültige URL").optional().or(z.literal("")),
+  logoUrl: z.string().url().optional().or(z.literal("")),
+  isActive: z.boolean().optional().default(true),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ArticleInput = z.infer<typeof articleSchema>;
 export type CategoryInput = z.infer<typeof categorySchema>;
 export type UserInput = z.infer<typeof userSchema>;
 export type EventInput = z.infer<typeof eventSchema>;
+export type DealerInput = z.infer<typeof dealerSchema>;

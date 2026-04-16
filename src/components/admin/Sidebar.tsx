@@ -11,6 +11,7 @@ import {
   Globe,
   LayoutDashboard,
   LogOut,
+  Store,
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/artikel", label: "Artikel", icon: FileText },
     { href: "/admin/events", label: "Messen & Events", icon: CalendarDays },
+    { href: "/admin/haendler", label: "Händler", icon: Store },
     { href: "/admin/kategorien", label: "Kategorien", icon: FolderOpen },
     {
       href: "/admin/news-quellen",

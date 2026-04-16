@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Search, X, CalendarDays } from "lucide-react";
+import { Search, X, CalendarDays, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type HeaderCategory = {
@@ -77,6 +77,13 @@ export function Header({ categories }: HeaderProps) {
           >
             <CalendarDays className="size-4" aria-hidden />
             Events
+          </Link>
+          <Link
+            href="/arider-haendler"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-[#E31E24]"
+          >
+            <Store className="size-4" aria-hidden />
+            Händler
           </Link>
         </nav>
 
@@ -177,6 +184,14 @@ export function Header({ categories }: HeaderProps) {
           >
             <CalendarDays className="size-4" aria-hidden />
             Events
+          </Link>
+          <Link
+            href="/arider-haendler"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[#111111] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
+            onClick={() => setMenuOpen(false)}
+          >
+            <Store className="size-4" aria-hidden />
+            Händler
           </Link>
         </nav>
       </div>

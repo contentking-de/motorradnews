@@ -115,6 +115,23 @@ export const ingestedItems = pgTable("ingested_items", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const dealers = pgTable("dealers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  brand: varchar("brand", { length: 100 }).notNull().default("Yamaha"),
+  street: varchar("street", { length: 255 }).notNull(),
+  zip: varchar("zip", { length: 10 }).notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  website: text("website"),
+  logoUrl: text("logo_url"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const eventStatusEnum = pgEnum("event_status", [
   "DRAFT",
   "PUBLISHED",
