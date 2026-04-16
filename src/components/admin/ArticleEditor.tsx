@@ -17,8 +17,9 @@ import {
   Quote,
   Link as LinkIcon,
   Image as ImageIcon,
+  Loader2,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 function parseContent(json: string): string | Record<string, unknown> {
@@ -47,6 +48,8 @@ interface ArticleEditorProps {
 
 export function ArticleEditor({ content, onChange, className }: ArticleEditorProps) {
   const lastEmitted = useRef<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [imageUploading, setImageUploading] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -114,11 +117,43 @@ export function ArticleEditor({ content, onChange, className }: ArticleEditorPro
   }, [editor]);
 
   const addImage = useCallback(() => {
-    if (!editor) return;
-    const url = window.prompt("Bild-URL", "https://");
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
-  }, [editor]);
+    imageInputRef.current?.click();
+  }, []);
+
+  const handleImageUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!editor) return;
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (imageInputRef.current) imageInputRef.current.value = "";
+
+      setImageUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+
+        const data = (await res.json()) as { url?: string; error?: string };
+
+        if (!res.ok || !data.url) {
+          alert(data.error || "Bild-Upload fehlgeschlagen");
+          return;
+        }
+
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } catch {
+        alert("Bild-Upload fehlgeschlagen. Bitte erneut versuchen.");
+      } finally {
+        setImageUploading(false);
+      }
+    },
+    [editor],
+  );
 
   if (!editor) {
     return (
@@ -232,11 +267,22 @@ export function ArticleEditor({ content, onChange, className }: ArticleEditorPro
         >
           <LinkIcon className="h-4 w-4" />
         </ToolBtn>
-        <ToolBtn label="Bild einfügen" active={false} onClick={addImage}>
-          <ImageIcon className="h-4 w-4" />
+        <ToolBtn label="Bild hochladen" active={false} onClick={addImage}>
+          {imageUploading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <ImageIcon className="h-4 w-4" />
+          )}
         </ToolBtn>
       </div>
       <EditorContent editor={editor} />
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
     </div>
   );
 }
