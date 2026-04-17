@@ -116,7 +116,8 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
               alt="aRider"
               width={120}
               height={32}
-              className="mt-2 h-8 w-auto"
+              className="mt-2 h-8"
+              style={{ width: "auto" }}
             />
           </div>
           <button

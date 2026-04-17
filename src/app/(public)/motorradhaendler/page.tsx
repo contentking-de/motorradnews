@@ -98,7 +98,8 @@ export default async function DealersListingPage({ searchParams }: Props) {
             alt="aRider"
             width={140}
             height={40}
-            className="h-10 w-auto"
+            className="h-10"
+            style={{ width: "auto" }}
           />
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl">

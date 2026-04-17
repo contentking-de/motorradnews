@@ -17,7 +17,8 @@ export function PoweredBySidebar() {
           alt="aRider"
           width={120}
           height={32}
-          className="h-8 w-auto"
+          className="h-8"
+          style={{ width: "auto" }}
         />
       </a>
     </div>
