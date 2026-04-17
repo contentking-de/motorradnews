@@ -38,7 +38,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
           {coverImageUrl ? (
             <Image
               src={coverImageUrl}
-              alt=""
+              alt={title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -68,7 +68,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
             {authorAvatarUrl ? (
               <Image
                 src={authorAvatarUrl}
-                alt=""
+                alt={`Profilbild von ${authorName}`}
                 fill
                 className="object-cover"
                 sizes="36px"

@@ -27,7 +27,7 @@ export function HeroArticle({ article }: HeroArticleProps) {
       {coverImageUrl ? (
         <Image
           src={coverImageUrl}
-          alt=""
+          alt={title}
           fill
           className="object-cover"
           priority
@@ -65,7 +65,7 @@ export function HeroArticle({ article }: HeroArticleProps) {
             {authorAvatarUrl ? (
               <Image
                 src={authorAvatarUrl}
-                alt=""
+                alt={`Profilbild von ${authorName}`}
                 fill
                 className="object-cover"
                 sizes="48px"

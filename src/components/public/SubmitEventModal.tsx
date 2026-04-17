@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, type FormEvent } from "react";
+import { useState, useEffect, useCallback, useRef, type FormEvent } from "react";
 import { X, CalendarPlus, Loader2, CheckCircle2 } from "lucide-react";
 import Button from "@/components/ui/Button";
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const inputClass =
   "w-full rounded-lg border border-[#E5E5E5] px-3 py-2 text-sm text-[#111111] placeholder:text-[#999999] focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#E31E24] transition-colors";
@@ -15,6 +18,8 @@ export function SubmitEventModal() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -44,21 +49,55 @@ export function SubmitEventModal() {
     setSuccess(false);
   }, []);
 
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    if (success) resetForm();
+  }, [success, resetForm]);
+
   useEffect(() => {
     if (open) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
       document.body.style.overflow = "hidden";
+
+      requestAnimationFrame(() => {
+        const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+        firstFocusable?.focus();
+      });
     } else {
       document.body.style.overflow = "";
+      previousFocusRef.current?.focus();
     }
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  const handleClose = () => {
-    setOpen(false);
-    if (success) resetForm();
-  };
+  useEffect(() => {
+    if (!open) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        handleClose();
+        return;
+      }
+      if (e.key === "Tab" && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [open, handleClose]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -126,7 +165,13 @@ export function SubmitEventModal() {
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="relative w-full max-w-2xl rounded-xl bg-white shadow-2xl">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Event einreichen"
+            className="relative w-full max-w-2xl rounded-xl bg-white shadow-2xl"
+          >
             <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-xl border-b border-[#E5E5E5] bg-white px-6 py-4">
               <h2 className="font-display text-xl font-bold text-[#111111]">
                 Event einreichen

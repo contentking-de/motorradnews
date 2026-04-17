@@ -20,6 +20,9 @@ export function Footer() {
           <Link href="/datenschutz" className="text-white/80 transition-colors hover:text-white">
             Datenschutz
           </Link>
+          <Link href="/barrierefreiheit" className="text-white/80 transition-colors hover:text-white">
+            Barrierefreiheit
+          </Link>
           <button
             type="button"
             onClick={openSettings}

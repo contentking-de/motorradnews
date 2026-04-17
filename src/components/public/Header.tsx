@@ -96,6 +96,7 @@ export function Header({ categories }: HeaderProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Suchen…"
+                aria-label="Website durchsuchen"
                 className="h-10 w-40 rounded-lg border border-[#E5E5E5] bg-[#F9F9F9] px-3 text-sm text-[#111111] outline-none transition-all placeholder:text-[#999999] focus:border-[#E31E24] focus:ring-1 focus:ring-[#E31E24] sm:w-56"
               />
               <button
@@ -161,6 +162,7 @@ export function Header({ categories }: HeaderProps) {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Artikel suchen…"
+                aria-label="Artikel suchen"
                 className="h-10 w-full rounded-lg border border-[#E5E5E5] bg-[#F9F9F9] pl-9 pr-3 text-sm text-[#111111] outline-none placeholder:text-[#999999] focus:border-[#E31E24] focus:ring-1 focus:ring-[#E31E24]"
               />
             </div>

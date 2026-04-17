@@ -78,7 +78,7 @@ export default async function EventsListingPage() {
                 {ev.coverImageUrl ? (
                   <Image
                     src={ev.coverImageUrl}
-                    alt=""
+                    alt={ev.title}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -133,7 +133,7 @@ export default async function EventsListingPage() {
                   <div className="relative hidden size-16 shrink-0 overflow-hidden rounded-md sm:block">
                     <Image
                       src={ev.coverImageUrl}
-                      alt=""
+                      alt={ev.title}
                       fill
                       className="object-cover"
                       sizes="64px"

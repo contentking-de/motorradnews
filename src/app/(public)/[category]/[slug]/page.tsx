@@ -153,7 +153,7 @@ export default async function ArticlePage({ params }: Props) {
         {article.coverImageUrl ? (
           <Image
             src={article.coverImageUrl}
-            alt=""
+            alt={article.title}
             fill
             className="object-cover"
             priority
@@ -210,7 +210,7 @@ export default async function ArticlePage({ params }: Props) {
               {author.avatarUrl ? (
                 <Image
                   src={author.avatarUrl}
-                  alt=""
+                  alt={`Profilbild von ${author.name}`}
                   fill
                   className="object-cover"
                   sizes="48px"
@@ -292,7 +292,7 @@ export default async function ArticlePage({ params }: Props) {
                           {a.coverImageUrl ? (
                             <Image
                               src={a.coverImageUrl}
-                              alt=""
+                              alt={a.title}
                               fill
                               className="object-cover transition-transform duration-200 group-hover:scale-105"
                               sizes="64px"

@@ -107,7 +107,7 @@ export default async function EventDetailPage({ params }: Props) {
           {ev.coverImageUrl ? (
             <Image
               src={ev.coverImageUrl}
-              alt=""
+              alt={ev.title}
               fill
               className="object-cover"
               priority

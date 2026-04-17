@@ -108,7 +108,7 @@ export default async function AuthorPage({ params }: Props) {
                 {author.avatarUrl ? (
                   <Image
                     src={author.avatarUrl}
-                    alt=""
+                    alt={`Profilbild von ${author.name}`}
                     fill
                     className="object-cover"
                     sizes="112px"
