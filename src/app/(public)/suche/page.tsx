@@ -22,6 +22,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       type: "website",
       title: q ? `Suche: ${q}` : "Suche",
       description: "Artikel auf motorrad.news durchsuchen.",
+      url: "/suche",
     },
   };
 }

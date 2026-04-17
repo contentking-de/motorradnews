@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
       title,
       description,
+      url: `/arider-haendler/${slug}`,
     },
   };
 }

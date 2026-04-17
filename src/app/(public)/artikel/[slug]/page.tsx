@@ -46,6 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       title: row.title,
       description: row.teaser ?? undefined,
+      url: `/artikel/${slug}`,
       ...(row.coverImageUrl ? { images: [{ url: row.coverImageUrl }] } : {}),
     },
   };

@@ -34,6 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "profile",
       title: author.name,
       description,
+      url: `/autor/${slug}`,
       ...(author.avatarUrl ? { images: [{ url: author.avatarUrl }] } : {}),
     },
   };

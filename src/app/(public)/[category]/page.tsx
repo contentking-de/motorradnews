@@ -37,6 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "website",
       title: row.name,
       description: row.description?.trim() || `${row.name} – ${defaultDescription}`,
+      url: `/${slug}`,
     },
   };
 }

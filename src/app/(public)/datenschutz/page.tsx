@@ -11,6 +11,7 @@ export const metadata: Metadata = {
     type: "website",
     title: "Datenschutzerklärung",
     description: "Datenschutzerklärung der motorrad.news – Arider GmbH & Co. KG",
+    url: "/datenschutz",
   },
 };
 

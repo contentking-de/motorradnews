@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     type: "website",
     title: "Messen & Events",
     description: "Motorrad-Messen, Events und Veranstaltungen",
+    url: "/messen-events",
   },
 };
 

@@ -22,6 +22,7 @@ export const metadata: Metadata = {
     title: "Motorradhändler Verzeichnis",
     description:
       "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
+    url: "/arider-haendler",
   },
 };
 

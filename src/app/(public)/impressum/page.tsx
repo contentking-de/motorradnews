@@ -9,6 +9,7 @@ export const metadata: Metadata = {
     type: "website",
     title: "Impressum",
     description: "Impressum der motorrad.news – Arider GmbH & Co. KG",
+    url: "/impressum",
   },
 };
 

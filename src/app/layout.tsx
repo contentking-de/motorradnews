@@ -37,6 +37,7 @@ export const metadata: Metadata = {
     title: "motorrad.news – Motorrad-Nachrichten & Tests",
     description:
       "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
+    url: "/",
   },
   twitter: {
     card: "summary_large_image",
