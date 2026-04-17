@@ -15,14 +15,14 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Motorradhändler Verzeichnis",
   description:
-    "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
-  alternates: { canonical: "/arider-haendler" },
+    "Finde deinen Motorradhändler in deiner Nähe. Alle Händler auf einen Blick.",
+  alternates: { canonical: "/motorradhaendler" },
   openGraph: {
     type: "website",
     title: "Motorradhändler Verzeichnis",
     description:
-      "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
-    url: "/arider-haendler",
+      "Finde deinen Motorradhändler in deiner Nähe. Alle Händler auf einen Blick.",
+    url: "/motorradhaendler",
   },
 };
 
@@ -145,7 +145,7 @@ export default async function DealersListingPage({ searchParams }: Props) {
                 {regionDealers.map((d) => (
                   <Link
                     key={d.id}
-                    href={`/arider-haendler/${d.slug}`}
+                    href={`/motorradhaendler/${d.slug}`}
                     className="group flex flex-col rounded-lg border border-[#E5E5E5] bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#E31E24]/30 hover:shadow-md"
                   >
                     <div className="flex items-start gap-3">

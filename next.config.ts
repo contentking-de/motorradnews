@@ -9,6 +9,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/arider-haendler",
+        destination: "/motorradhaendler",
+        permanent: true,
+      },
+      {
+        source: "/arider-haendler/:slug",
+        destination: "/motorradhaendler/:slug",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -29,18 +29,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!d) return { title: "Händler" };
 
-  const title = `${d.name} – Arider Händler in ${d.city}`;
+  const title = `${d.name} – Motorradhändler in ${d.city}`;
   const description = `${d.name} – Autorisierter ${d.brand}-Händler in ${d.zip ? `${d.zip} ` : ""}${d.city}.${d.street ? ` Adresse: ${d.street}.` : ""}`;
 
   return {
     title,
     description,
-    alternates: { canonical: `/arider-haendler/${slug}` },
+    alternates: { canonical: `/motorradhaendler/${slug}` },
     openGraph: {
       type: "website",
       title,
       description,
-      url: `/arider-haendler/${slug}`,
+      url: `/motorradhaendler/${slug}`,
     },
   };
 }
@@ -100,10 +100,10 @@ export default async function DealerDetailPage({ params }: Props) {
             <li aria-hidden className="text-[#999999]">/</li>
             <li>
               <Link
-                href="/arider-haendler"
+                href="/motorradhaendler"
                 className="hover:text-[#E31E24] transition-colors"
               >
-                Arider Händler
+                Motorradhändler
               </Link>
             </li>
             <li aria-hidden className="text-[#999999]">/</li>
@@ -276,7 +276,7 @@ export default async function DealerDetailPage({ params }: Props) {
 
           <div className="border-t border-[#E5E5E5] px-6 py-4 sm:px-8">
             <Link
-              href="/arider-haendler"
+              href="/motorradhaendler"
               className="inline-flex items-center gap-2 font-display text-sm font-semibold text-[#E31E24] hover:text-[#C41A1F] transition-colors"
             >
               <ChevronLeft className="size-4" />

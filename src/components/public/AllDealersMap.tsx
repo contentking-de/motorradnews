@@ -68,7 +68,7 @@ export function AllDealersMap({ dealers }: AllDealersMapProps) {
       const marker = L.marker([d.lat, d.lon], { icon })
         .addTo(map)
         .bindPopup(
-          `<a href="/arider-haendler/${d.slug}" style="text-decoration:none">
+          `<a href="/motorradhaendler/${d.slug}" style="text-decoration:none">
             <strong style="font-size:14px;color:#111">${d.name}</strong>
           </a>
           <br/><span style="color:#666;font-size:12px">${d.brand} · ${d.city}</span>`,
