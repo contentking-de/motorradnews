@@ -38,7 +38,7 @@ export async function UpcomingEventsSidebar() {
         {upcoming.map((ev) => (
           <li key={ev.slug}>
             <Link
-              href={`/messen-events/${ev.slug}`}
+              href={`/termine-events/${ev.slug}`}
               className="group block rounded-md px-2 py-1.5 transition-colors hover:bg-[#F9F9F9]"
             >
               <p className="font-display line-clamp-2 text-sm font-semibold leading-snug text-[#111111] transition-colors group-hover:text-[#E31E24]">
@@ -59,7 +59,7 @@ export async function UpcomingEventsSidebar() {
         ))}
       </ul>
       <Link
-        href="/messen-events"
+        href="/termine-events"
         className="mt-3 inline-block text-sm font-semibold text-[#E31E24] transition-colors hover:text-[#C41A1F]"
       >
         Alle Events →

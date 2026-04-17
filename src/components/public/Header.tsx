@@ -72,7 +72,7 @@ export function Header({ categories }: HeaderProps) {
             </Link>
           ))}
           <Link
-            href="/messen-events"
+            href="/termine-events"
             className="inline-flex items-center gap-1.5 transition-colors hover:text-[#E31E24]"
           >
             <CalendarDays className="size-4" aria-hidden />
@@ -178,7 +178,7 @@ export function Header({ categories }: HeaderProps) {
             </Link>
           ))}
           <Link
-            href="/messen-events"
+            href="/termine-events"
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[#111111] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
             onClick={() => setMenuOpen(false)}
           >

@@ -11,14 +11,14 @@ import { and, asc, desc, eq, gte, lt, isNotNull } from "drizzle-orm";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Messen & Events",
-  description: "Motorrad-Messen, Events und Veranstaltungen",
-  alternates: { canonical: "/messen-events" },
+  title: "Termine & Events",
+  description: "Motorrad-Termine, Events und Veranstaltungen",
+  alternates: { canonical: "/termine-events" },
   openGraph: {
     type: "website",
-    title: "Messen & Events",
-    description: "Motorrad-Messen, Events und Veranstaltungen",
-    url: "/messen-events",
+    title: "Termine & Events",
+    description: "Motorrad-Termine, Events und Veranstaltungen",
+    url: "/termine-events",
   },
 };
 
@@ -71,7 +71,7 @@ export default async function EventsListingPage() {
           {upcomingEvents.map((ev) => (
             <Link
               key={ev.id}
-              href={`/messen-events/${ev.slug}`}
+              href={`/termine-events/${ev.slug}`}
               className="group flex flex-col overflow-hidden rounded-lg border border-[#E5E5E5] bg-white transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#F9F9F9]">
@@ -126,7 +126,7 @@ export default async function EventsListingPage() {
             {pastEvents.map((ev) => (
               <Link
                 key={ev.id}
-                href={`/messen-events/${ev.slug}`}
+                href={`/termine-events/${ev.slug}`}
                 className="group flex items-center gap-4 rounded-lg border border-[#E5E5E5] bg-white p-4 transition-colors hover:border-[#E31E24]/30 hover:bg-[#F9F9F9]"
               >
                 {ev.coverImageUrl ? (

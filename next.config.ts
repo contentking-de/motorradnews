@@ -21,6 +21,16 @@ const nextConfig: NextConfig = {
         destination: "/motorradhaendler/:slug",
         permanent: true,
       },
+      {
+        source: "/messen-events",
+        destination: "/termine-events",
+        permanent: true,
+      },
+      {
+        source: "/messen-events/:slug",
+        destination: "/termine-events/:slug",
+        permanent: true,
+      },
     ];
   },
 };

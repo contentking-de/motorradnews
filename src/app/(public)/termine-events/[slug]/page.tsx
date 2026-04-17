@@ -37,12 +37,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: ev.title,
     description: extractPlainText(ev.description).slice(0, 160),
-    alternates: { canonical: `/messen-events/${slug}` },
+    alternates: { canonical: `/termine-events/${slug}` },
     openGraph: {
       type: "article",
       title: ev.title,
       description: extractPlainText(ev.description).slice(0, 160),
-      url: `/messen-events/${slug}`,
+      url: `/termine-events/${slug}`,
       ...(ev.coverImageUrl ? { images: [{ url: ev.coverImageUrl }] } : {}),
     },
   };
@@ -127,7 +127,7 @@ export default async function EventDetailPage({ params }: Props) {
                 </li>
                 <li aria-hidden className="text-white/40">/</li>
                 <li>
-                  <Link href="/messen-events" className="transition-colors hover:text-white">Messen &amp; Events</Link>
+                  <Link href="/termine-events" className="transition-colors hover:text-white">Termine &amp; Events</Link>
                 </li>
               </ol>
             </nav>
