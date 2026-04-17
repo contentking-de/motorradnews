@@ -84,7 +84,7 @@ export const dealerSchema = z.object({
   phone: z.string().max(50).optional().or(z.literal("")),
   email: z.string().email("Ungültige E-Mail").optional().or(z.literal("")),
   website: z.string().url("Ungültige URL").optional().or(z.literal("")),
-  description: z.string().max(5000).optional().or(z.literal("")),
+  description: z.string().max(15000).optional().or(z.literal("")),
   logoUrl: z.string().url().optional().or(z.literal("")),
   isActive: z.boolean().optional().default(true),
 });
