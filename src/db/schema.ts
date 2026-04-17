@@ -7,6 +7,7 @@ import {
   integer,
   pgEnum,
   boolean,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 export const userRoleEnum = pgEnum("user_role", ["ADMIN", "EDITOR"]);
@@ -127,6 +128,8 @@ export const dealers = pgTable("dealers", {
   email: varchar("email", { length: 255 }),
   website: text("website"),
   description: text("description"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
   logoUrl: text("logo_url"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -19,54 +19,6 @@ export const revalidate = 60;
 
 type Props = Readonly<{ params: Promise<{ slug: string }> }>;
 
-async function geocode(
-  street: string,
-  zip: string,
-  city: string,
-): Promise<{ lat: number; lon: number } | null> {
-  function parseCoords(data: unknown): { lat: number; lon: number } | null {
-    if (!Array.isArray(data) || !data.length) return null;
-    const first = data[0] as Record<string, unknown>;
-    const lat = parseFloat(String(first?.lat ?? ""));
-    const lon = parseFloat(String(first?.lon ?? ""));
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-    return { lat, lon };
-  }
-
-  try {
-    const fullQuery = `${street}, ${zip} ${city}, Deutschland`;
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?` +
-        new URLSearchParams({ q: fullQuery, format: "json", limit: "1" }),
-      {
-        headers: { "User-Agent": "motorrad-news/1.0 (https://motorrad.news)" },
-        next: { revalidate: 86400 },
-      },
-    );
-    if (res.ok) {
-      const coords = parseCoords(await res.json());
-      if (coords) return coords;
-    }
-
-    const cityQuery = `${zip} ${city}, Deutschland`;
-    const fallback = await fetch(
-      `https://nominatim.openstreetmap.org/search?` +
-        new URLSearchParams({ q: cityQuery, format: "json", limit: "1" }),
-      {
-        headers: { "User-Agent": "motorrad-news/1.0 (https://motorrad.news)" },
-        next: { revalidate: 86400 },
-      },
-    );
-    if (fallback.ok) {
-      return parseCoords(await fallback.json());
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const [d] = await db
@@ -93,9 +45,10 @@ export default async function DealerDetailPage({ params }: Props) {
 
   if (!d) notFound();
 
-  const coords = d.street || d.zip
-    ? await geocode(d.street ?? "", d.zip ?? "", d.city)
-    : await geocode("", "", d.city);
+  const coords =
+    d.latitude != null && d.longitude != null
+      ? { lat: d.latitude, lon: d.longitude }
+      : null;
 
   const addressParts = [d.street, [d.zip, d.city].filter(Boolean).join(" ")].filter(Boolean).join(", ");
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${addressParts}, Deutschland`)}`;
@@ -126,7 +79,7 @@ export default async function DealerDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
         <nav className="mb-8" aria-label="Brotkrumen">
           <ol className="flex flex-wrap items-center gap-2 text-sm text-[#666666]">
             <li>
@@ -274,7 +227,7 @@ export default async function DealerDetailPage({ params }: Props) {
             <div className="border-t border-[#E5E5E5] px-6 py-6 sm:px-8 sm:py-8">
               {d.description.includes("<h2>") ? (
                 <div
-                  className="dealer-description text-[#444444] text-sm leading-relaxed [&>h2]:font-display [&>h2]:text-sm [&>h2]:font-bold [&>h2]:uppercase [&>h2]:tracking-wide [&>h2]:text-[#111111] [&>h2]:mt-6 [&>h2]:mb-2 first:[&>h2]:mt-0 [&>p]:mb-3 last:[&>p]:mb-0 [&_ul]:my-2 [&_ul]:ml-5 [&_ul]:list-disc [&_li]:mb-1"
+                  className="dealer-description text-[#444444] text-sm leading-relaxed [&>h2]:font-display [&>h2]:text-lg [&>h2]:font-bold [&>h2]:uppercase [&>h2]:tracking-wide [&>h2]:text-[#111111] [&>h2]:mt-10 [&>h2]:mb-3 [&>h2]:pt-6 [&>h2]:border-t [&>h2]:border-[#E5E5E5] first:[&>h2]:mt-0 first:[&>h2]:pt-0 first:[&>h2]:border-t-0 [&>p]:mb-3 last:[&>p]:mb-0 [&_ul]:my-2 [&_ul]:ml-5 [&_ul]:list-disc [&_li]:mb-1"
                   dangerouslySetInnerHTML={{ __html: d.description }}
                 />
               ) : (

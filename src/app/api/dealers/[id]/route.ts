@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
 import { dealerSchema } from "@/lib/validations";
+import { geocodeAddress } from "@/lib/geocode";
 
 const updateDealerSchema = dealerSchema.partial();
 
@@ -105,6 +106,19 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     if (patch.logoUrl !== undefined)
       updateValues.logoUrl = patch.logoUrl || null;
     if (patch.isActive !== undefined) updateValues.isActive = patch.isActive;
+
+    const addressChanged =
+      patch.street !== undefined ||
+      patch.zip !== undefined ||
+      patch.city !== undefined;
+    if (addressChanged) {
+      const street = (patch.street ?? existing.street) || "";
+      const zip = (patch.zip ?? existing.zip) || "";
+      const city = patch.city ?? existing.city;
+      const coords = await geocodeAddress(street, zip, city);
+      updateValues.latitude = coords?.lat ?? null;
+      updateValues.longitude = coords?.lon ?? null;
+    }
 
     await db.update(dealers).set(updateValues).where(eq(dealers.id, id));
 

@@ -5,6 +5,7 @@ import { desc, and, ilike, eq } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { dealerSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
+import { geocodeAddress } from "@/lib/geocode";
 
 export async function GET(request: NextRequest) {
   try {
@@ -77,6 +78,12 @@ export async function POST(request: NextRequest) {
   const now = new Date();
 
   try {
+    const coords = await geocodeAddress(
+      data.street || "",
+      data.zip || "",
+      data.city,
+    );
+
     const [inserted] = await db
       .insert(dealers)
       .values({
@@ -90,6 +97,8 @@ export async function POST(request: NextRequest) {
         email: data.email || null,
         website: data.website || null,
         description: data.description || null,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lon ?? null,
         logoUrl: data.logoUrl || null,
         isActive: data.isActive ?? true,
         updatedAt: now,
