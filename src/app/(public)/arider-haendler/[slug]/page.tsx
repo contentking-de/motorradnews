@@ -228,7 +228,25 @@ export default async function DealerDetailPage({ params }: Props) {
               {d.description.includes("<h2>") ? (
                 <div
                   className="dealer-description text-[#444444] text-sm leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: d.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: d.description
+                      .replace(
+                        "<h2>Service &amp; Werkstatt</h2>",
+                        `<h2>${d.name} – Service &amp; Werkstatt</h2>`,
+                      )
+                      .replace(
+                        "<h2>Service & Werkstatt</h2>",
+                        `<h2>${d.name} – Service & Werkstatt</h2>`,
+                      )
+                      .replace(
+                        "<h2>Angebote &amp; Leistungen</h2>",
+                        `<h2>Angebote &amp; Leistungen bei ${d.name}</h2>`,
+                      )
+                      .replace(
+                        "<h2>Angebote & Leistungen</h2>",
+                        `<h2>Angebote & Leistungen bei ${d.name}</h2>`,
+                      ),
+                  }}
                 />
               ) : (
                 <>
