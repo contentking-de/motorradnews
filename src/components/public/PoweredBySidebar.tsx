@@ -3,7 +3,7 @@ import Image from "next/image";
 export function PoweredBySidebar() {
   return (
     <div>
-      <p className="text-[10px] font-medium uppercase tracking-widest text-[#999999]">
+      <p className="text-[10px] font-medium uppercase tracking-widest text-[#666666]">
         motorrad.news powered by
       </p>
       <a
