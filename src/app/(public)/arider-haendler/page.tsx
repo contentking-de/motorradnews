@@ -13,7 +13,7 @@ import type { DealerPin } from "@/components/public/AllDealersMap";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Arider Händler – Händlerverzeichnis",
+  title: "Arider Händler – Motorradhändler Verzeichnis",
   description:
     "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
 };
@@ -94,7 +94,7 @@ export default async function DealersListingPage({ searchParams }: Props) {
           />
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl">
-              Händlerverzeichnis
+              Motorradhändler Verzeichnis
             </h1>
             <p className="mt-1 text-sm text-[#666666]">
               {allDealers.length} autorisierte Händler in Deutschland
