@@ -227,7 +227,7 @@ export default async function DealerDetailPage({ params }: Props) {
             <div className="border-t border-[#E5E5E5] px-6 py-6 sm:px-8 sm:py-8">
               {d.description.includes("<h2>") ? (
                 <div
-                  className="dealer-description text-[#444444] text-sm leading-relaxed [&>h2]:font-display [&>h2]:text-lg [&>h2]:font-bold [&>h2]:uppercase [&>h2]:tracking-wide [&>h2]:text-[#111111] [&>h2]:mt-10 [&>h2]:mb-3 [&>h2]:pt-6 [&>h2]:border-t [&>h2]:border-[#E5E5E5] first:[&>h2]:mt-0 first:[&>h2]:pt-0 first:[&>h2]:border-t-0 [&>p]:mb-3 last:[&>p]:mb-0 [&_ul]:my-2 [&_ul]:ml-5 [&_ul]:list-disc [&_li]:mb-1"
+                  className="dealer-description text-[#444444] text-sm leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: d.description }}
                 />
               ) : (
