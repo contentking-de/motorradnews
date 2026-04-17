@@ -7,6 +7,8 @@ import { dealers } from "@/db/schema";
 import { eq, asc, and, ilike, or } from "drizzle-orm";
 import { Suspense } from "react";
 import DealerSearch from "@/components/public/DealerSearch";
+import { AllDealersMapWrapper } from "@/components/public/AllDealersMapWrapper";
+import type { DealerPin } from "@/components/public/AllDealersMap";
 
 export const revalidate = 60;
 
@@ -59,6 +61,28 @@ export default async function DealersListingPage({ searchParams }: Props) {
     return true;
   });
 
+  const mapPins = (
+    await Promise.all(
+      filtered.map(async (d): Promise<DealerPin | null> => {
+        const coords = await geocode(
+          d.street ?? "",
+          d.zip ?? "",
+          d.city,
+        );
+        if (!coords) return null;
+        return {
+          id: d.id,
+          name: d.name,
+          slug: d.slug,
+          brand: d.brand,
+          city: d.city,
+          lat: coords.lat,
+          lon: coords.lon,
+        };
+      }),
+    )
+  ).filter((p): p is DealerPin => p !== null);
+
   const grouped = new Map<string, typeof filtered>();
   for (const d of filtered) {
     const prefix = d.zip ? d.zip.slice(0, 1) : "?";
@@ -96,6 +120,12 @@ export default async function DealersListingPage({ searchParams }: Props) {
           filteredCount={filtered.length}
         />
       </Suspense>
+
+      {mapPins.length > 0 && (
+        <div className="mt-8">
+          <AllDealersMapWrapper dealers={mapPins} />
+        </div>
+      )}
 
       {filtered.length === 0 ? (
         <p className="mt-10 text-center text-lg text-[#666666]">
@@ -175,4 +205,55 @@ function regionName(plzPrefix: string): string {
     "?": "Ohne PLZ-Zuordnung",
   };
   return regions[plzPrefix] ?? `PLZ-Bereich ${plzPrefix}`;
+}
+
+async function geocode(
+  street: string,
+  zip: string,
+  city: string,
+): Promise<{ lat: number; lon: number } | null> {
+  function parseCoords(data: unknown): { lat: number; lon: number } | null {
+    if (!Array.isArray(data) || !data.length) return null;
+    const first = data[0] as Record<string, unknown>;
+    const lat = parseFloat(String(first?.lat ?? ""));
+    const lon = parseFloat(String(first?.lon ?? ""));
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    return { lat, lon };
+  }
+
+  try {
+    const fullQuery = [street, [zip, city].filter(Boolean).join(" ")]
+      .filter(Boolean)
+      .join(", ") + ", Deutschland";
+
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?` +
+        new URLSearchParams({ q: fullQuery, format: "json", limit: "1" }),
+      {
+        headers: { "User-Agent": "motorrad-news/1.0 (https://motorrad.news)" },
+        next: { revalidate: 86400 },
+      },
+    );
+    if (res.ok) {
+      const coords = parseCoords(await res.json());
+      if (coords) return coords;
+    }
+
+    const cityQuery = `${zip} ${city}, Deutschland`;
+    const fallback = await fetch(
+      `https://nominatim.openstreetmap.org/search?` +
+        new URLSearchParams({ q: cityQuery, format: "json", limit: "1" }),
+      {
+        headers: { "User-Agent": "motorrad-news/1.0 (https://motorrad.news)" },
+        next: { revalidate: 86400 },
+      },
+    );
+    if (fallback.ok) {
+      return parseCoords(await fallback.json());
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
 }
