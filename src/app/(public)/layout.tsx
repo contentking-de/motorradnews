@@ -34,7 +34,7 @@ export default async function PublicLayout({
       <div className="flex min-h-screen flex-col bg-white text-[#111111]">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#E31E24] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg"
+          className="absolute left-4 top-4 z-[100] -translate-y-20 rounded-lg bg-[#111111] px-4 py-2 text-sm font-semibold text-white shadow-lg transition-transform focus:translate-y-0"
         >
           Zum Inhalt springen
         </a>
