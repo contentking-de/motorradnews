@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { slugify } from "@/lib/utils";
 
 const userRoleSchema = z.enum(["ADMIN", "EDITOR"]);
 
@@ -15,6 +16,7 @@ const createUserSchema = z.object({
   role: userRoleSchema.optional().default("EDITOR"),
   isActive: z.boolean().optional().default(true),
   avatarUrl: z.string().nullable().optional(),
+  bio: z.string().nullable().optional(),
 });
 
 const updateUserSchema = z.object({
@@ -24,15 +26,18 @@ const updateUserSchema = z.object({
   password: z.string().min(8).max(128).optional(),
   role: userRoleSchema.optional(),
   isActive: z.boolean().optional(),
+  bio: z.string().nullable().optional(),
 });
 
 function toPublicUser(row: typeof users.$inferSelect) {
   return {
     id: row.id,
     name: row.name,
+    slug: row.slug,
     email: row.email,
     role: row.role,
     avatarUrl: row.avatarUrl,
+    bio: row.bio,
     isActive: row.isActive,
     createdAt: row.createdAt,
   };
@@ -94,11 +99,13 @@ export async function POST(request: NextRequest) {
       .insert(users)
       .values({
         name: data.name,
+        slug: slugify(data.name),
         email: data.email,
         passwordHash,
         role: data.role,
         isActive: data.isActive,
         avatarUrl: data.avatarUrl ?? null,
+        bio: data.bio ?? null,
       })
       .returning();
 
@@ -144,8 +151,8 @@ export async function PUT(request: NextRequest) {
     );
   }
 
-  const { id, name, email, password, role, isActive } = parsed.data;
-  if (name === undefined && email === undefined && password === undefined && role === undefined && isActive === undefined) {
+  const { id, name, email, password, role, isActive, bio } = parsed.data;
+  if (name === undefined && email === undefined && password === undefined && role === undefined && isActive === undefined && bio === undefined) {
     return NextResponse.json(
       { error: "Mindestens ein Feld zum Aktualisieren ist erforderlich" },
       { status: 400 }
@@ -154,11 +161,15 @@ export async function PUT(request: NextRequest) {
 
   try {
     const updateValues: Partial<typeof users.$inferInsert> = {};
-    if (name !== undefined) updateValues.name = name;
+    if (name !== undefined) {
+      updateValues.name = name;
+      updateValues.slug = slugify(name);
+    }
     if (email !== undefined) updateValues.email = email;
     if (password !== undefined) updateValues.passwordHash = await bcrypt.hash(password, 12);
     if (role !== undefined) updateValues.role = role;
     if (isActive !== undefined) updateValues.isActive = isActive;
+    if (bio !== undefined) updateValues.bio = bio;
 
     const [updated] = await db
       .update(users)

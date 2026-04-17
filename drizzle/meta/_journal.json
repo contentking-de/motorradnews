@@ -50,6 +50,13 @@
       "when": 1776411159313,
       "tag": "0006_quiet_scalphunter",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776425930161,
+      "tag": "0007_light_mantis",
+      "breakpoints": true
     }
   ]
 }

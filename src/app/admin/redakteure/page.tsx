@@ -21,8 +21,10 @@ import { cn } from "@/lib/utils";
 type UserRow = {
   id: string;
   name: string;
+  slug: string | null;
   email: string;
   role: "ADMIN" | "EDITOR";
+  bio: string | null;
   isActive: boolean;
   createdAt: string;
 };
@@ -62,6 +64,7 @@ export default function RedakteurePage() {
   const [editEmail, setEditEmail] = useState("");
   const [editRole, setEditRole] = useState<"ADMIN" | "EDITOR">("EDITOR");
   const [editPassword, setEditPassword] = useState("");
+  const [editBio, setEditBio] = useState("");
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
@@ -197,6 +200,7 @@ export default function RedakteurePage() {
     setEditEmail(user.email);
     setEditRole(user.role);
     setEditPassword("");
+    setEditBio(user.bio ?? "");
     setEditError(null);
     setEditModalOpen(true);
   }
@@ -216,6 +220,7 @@ export default function RedakteurePage() {
     if (editEmail.trim() !== editUser.email) payload.email = editEmail.trim();
     if (editRole !== editUser.role) payload.role = editRole;
     if (editPassword) payload.password = editPassword;
+    if ((editBio || "") !== (editUser.bio || "")) payload.bio = editBio || null;
 
     if (Object.keys(payload).length === 1) {
       setEditModalOpen(false);
@@ -602,6 +607,22 @@ export default function RedakteurePage() {
             >
               Passwort generieren
             </Button>
+          </div>
+          <div>
+            <label
+              htmlFor="edit-user-bio"
+              className="block text-sm font-display font-semibold text-[#111111] mb-1"
+            >
+              Biografie
+            </label>
+            <textarea
+              id="edit-user-bio"
+              className={cn(selectClass, "min-h-[120px] resize-y")}
+              value={editBio}
+              onChange={(e) => setEditBio(e.target.value)}
+              placeholder="Kurze Biografie des Redakteurs …"
+              rows={5}
+            />
           </div>
           {editError ? (
             <p className="text-sm text-red-600">{editError}</p>

@@ -20,10 +20,12 @@ export const articleStatusEnum = pgEnum("article_status", [
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
+  slug: varchar("slug", { length: 100 }).unique(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   role: userRoleEnum("role").notNull().default("EDITOR"),
   avatarUrl: text("avatar_url"),
+  bio: text("bio"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

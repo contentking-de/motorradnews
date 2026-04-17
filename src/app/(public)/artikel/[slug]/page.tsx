@@ -126,6 +126,7 @@ export default async function ArticlePage({ params }: Props) {
     author: {
       "@type": "Person",
       name: author.name,
+      ...(author.slug ? { url: `https://www.motorrad.news/autor/${author.slug}` } : {}),
       ...(author.avatarUrl ? { image: author.avatarUrl } : {}),
     },
     publisher: {
@@ -201,7 +202,7 @@ export default async function ArticlePage({ params }: Props) {
           ) : null}
 
           <div className="mt-6 flex flex-wrap items-center gap-4 sm:mt-8">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 sm:h-12 sm:w-12">
+            <Link href={author.slug ? `/autor/${author.slug}` : "#"} className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/30 bg-white/10 transition-opacity hover:opacity-80 sm:h-12 sm:w-12">
               {author.avatarUrl ? (
                 <Image
                   src={author.avatarUrl}
@@ -219,10 +220,15 @@ export default async function ArticlePage({ params }: Props) {
                   {author.name.slice(0, 1).toUpperCase()}
                 </span>
               )}
-            </div>
+            </Link>
             <div>
-              <p className="font-display text-sm font-semibold text-white sm:text-base">{author.name}</p>
-              <time className="text-sm text-white/70" dateTime={dateIso}>
+              <Link
+                href={author.slug ? `/autor/${author.slug}` : "#"}
+                className="font-display text-sm font-semibold text-white transition-colors hover:text-white/80 sm:text-base"
+              >
+                {author.name}
+              </Link>
+              <time className="block text-sm text-white/70" dateTime={dateIso}>
                 {formatDate(publishedAt)}
               </time>
             </div>
