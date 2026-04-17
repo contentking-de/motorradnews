@@ -9,7 +9,7 @@ export function PoweredBySidebar() {
       <a
         href="https://arider.com"
         target="_blank"
-        rel="noopener noreferrer"
+        rel="noopener noreferrer nofollow sponsored"
         className="mt-3 inline-block transition-opacity hover:opacity-80"
       >
         <Image
