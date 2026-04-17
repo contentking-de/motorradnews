@@ -109,9 +109,41 @@ export default async function ArticlePage({ params }: Props) {
 
   const relatedArticles = relatedRows.map(mapRowToPublicArticle);
   const dateIso = publishedAt instanceof Date ? publishedAt.toISOString() : new Date(publishedAt).toISOString();
+  const modifiedIso = article.updatedAt instanceof Date ? article.updatedAt.toISOString() : new Date(article.updatedAt).toISOString();
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    ...(article.teaser ? { description: article.teaser } : {}),
+    ...(article.coverImageUrl ? { image: article.coverImageUrl } : {}),
+    datePublished: dateIso,
+    dateModified: modifiedIso,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `https://www.motorrad.news/artikel/${slug}`,
+    },
+    author: {
+      "@type": "Person",
+      name: author.name,
+      ...(author.avatarUrl ? { image: author.avatarUrl } : {}),
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "motorrad.news",
+      url: "https://www.motorrad.news",
+    },
+    articleSection: category.name,
+  };
 
   return (
-    <article className="flex flex-1 flex-col text-[#111111]">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <article className="flex flex-1 flex-col text-[#111111]">
       <section className="relative min-h-[min(70vh,560px)] w-full overflow-hidden bg-[#111111]">
         {article.coverImageUrl ? (
           <Image
@@ -305,6 +337,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
         </section>
       ) : null}
-    </article>
+      </article>
+    </>
   );
 }
