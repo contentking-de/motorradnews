@@ -34,7 +34,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-[#E5E5E5] bg-white transition-transform duration-200 ease-out hover:-translate-y-1 hover:shadow-lg">
       <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F9F9F9]">
-        <Link href={`/artikel/${slug}`} className="absolute inset-0 z-0 block" aria-label={title}>
+        <Link href={`/${categorySlug}/${slug}`} className="absolute inset-0 z-0 block" aria-label={title}>
           {coverImageUrl ? (
             <Image
               src={coverImageUrl}
@@ -56,7 +56,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
         </Link>
       </div>
 
-      <Link href={`/artikel/${slug}`} className="flex flex-1 flex-col gap-3 p-4">
+      <Link href={`/${categorySlug}/${slug}`} className="flex flex-1 flex-col gap-3 p-4">
         <h2 className="font-display text-lg font-bold leading-snug text-[#111111] group-hover:text-[#E31E24] md:text-xl">
           {title}
         </h2>

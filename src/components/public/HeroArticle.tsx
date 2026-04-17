@@ -50,7 +50,7 @@ export function HeroArticle({ article }: HeroArticleProps) {
           {categoryName}
         </Link>
 
-        <Link href={`/artikel/${slug}`} className="group block">
+        <Link href={`/${categorySlug}/${slug}`} className="group block">
           <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
             <span className="transition-colors group-hover:text-white/95">{title}</span>
           </h1>

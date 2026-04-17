@@ -21,10 +21,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       db
         .select({
           slug: articles.slug,
+          categorySlug: categories.slug,
           publishedAt: articles.publishedAt,
           updatedAt: articles.updatedAt,
         })
         .from(articles)
+        .innerJoin(categories, eq(articles.categoryId, categories.id))
         .where(and(eq(articles.status, "PUBLISHED"), isNotNull(articles.publishedAt)))
         .orderBy(desc(articles.publishedAt)),
     ]);
@@ -37,7 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     const articlePages: MetadataRoute.Sitemap = publishedArticles.map((a) => ({
-      url: `${BASE_URL}/artikel/${a.slug}`,
+      url: `${BASE_URL}/${a.categorySlug}/${a.slug}`,
       lastModified: a.updatedAt ?? a.publishedAt ?? undefined,
       changeFrequency: "weekly",
       priority: 0.6,
