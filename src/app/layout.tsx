@@ -43,6 +43,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: "@DE_motorradnews",
   },
+  verification: {
+    google: "4ThJPJxycyrvZPWFdvSOuaK-6oFUQfxwtEAZ6PyRFII",
+  },
 };
 
 export default function RootLayout({
