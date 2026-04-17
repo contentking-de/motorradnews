@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   description:
     "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
   alternates: {
     canonical: "/",
