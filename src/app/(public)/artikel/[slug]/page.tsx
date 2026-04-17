@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       teaser: articles.teaser,
       status: articles.status,
       publishedAt: articles.publishedAt,
+      coverImageUrl: articles.coverImageUrl,
     })
     .from(articles)
     .where(eq(articles.slug, slug))
@@ -40,6 +41,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: row.title,
     description: row.teaser,
+    alternates: { canonical: `/artikel/${slug}` },
+    openGraph: {
+      type: "article",
+      title: row.title,
+      description: row.teaser ?? undefined,
+      ...(row.coverImageUrl ? { images: [{ url: row.coverImageUrl }] } : {}),
+    },
   };
 }
 

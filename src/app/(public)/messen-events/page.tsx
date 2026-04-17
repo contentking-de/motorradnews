@@ -13,6 +13,12 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "Messen & Events",
   description: "Motorrad-Messen, Events und Veranstaltungen",
+  alternates: { canonical: "/messen-events" },
+  openGraph: {
+    type: "website",
+    title: "Messen & Events",
+    description: "Motorrad-Messen, Events und Veranstaltungen",
+  },
 };
 
 export default async function EventsListingPage() {

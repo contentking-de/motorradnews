@@ -4,6 +4,12 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Impressum",
   description: "Impressum der motorrad.news – Arider GmbH & Co. KG",
+  alternates: { canonical: "/impressum" },
+  openGraph: {
+    type: "website",
+    title: "Impressum",
+    description: "Impressum der motorrad.news – Arider GmbH & Co. KG",
+  },
 };
 
 export default function ImpressumPage() {

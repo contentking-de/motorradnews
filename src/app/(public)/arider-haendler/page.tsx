@@ -16,6 +16,13 @@ export const metadata: Metadata = {
   title: "Motorradhändler Verzeichnis",
   description:
     "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
+  alternates: { canonical: "/arider-haendler" },
+  openGraph: {
+    type: "website",
+    title: "Motorradhändler Verzeichnis",
+    description:
+      "Finde deinen Arider-Händler in deiner Nähe. Alle autorisierten Händler auf einen Blick.",
+  },
 };
 
 type Props = {

@@ -37,6 +37,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: ev.title,
     description: extractPlainText(ev.description).slice(0, 160),
+    alternates: { canonical: `/messen-events/${slug}` },
+    openGraph: {
+      type: "article",
+      title: ev.title,
+      description: extractPlainText(ev.description).slice(0, 160),
+      ...(ev.coverImageUrl ? { images: [{ url: ev.coverImageUrl }] } : {}),
+    },
   };
 }
 

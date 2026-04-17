@@ -32,6 +32,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: row.name,
     description: row.description?.trim() || `${row.name} – ${defaultDescription}`,
+    alternates: { canonical: `/${slug}` },
+    openGraph: {
+      type: "website",
+      title: row.name,
+      description: row.description?.trim() || `${row.name} – ${defaultDescription}`,
+    },
   };
 }
 

@@ -16,6 +16,7 @@ const arimo = Arimo({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.motorrad.news"),
   title: {
     default: "motorrad.news – Motorrad-Nachrichten & Tests",
     template: "%s | motorrad.news",
@@ -25,6 +26,20 @@ export const metadata: Metadata = {
   robots: {
     index: false,
     follow: false,
+  },
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "de_DE",
+    siteName: "motorrad.news",
+    title: "motorrad.news – Motorrad-Nachrichten & Tests",
+    description:
+      "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

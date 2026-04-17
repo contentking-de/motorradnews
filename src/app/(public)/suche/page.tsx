@@ -17,6 +17,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const { q } = await searchParams;
   return {
     title: q ? `Suche: ${q}` : "Suche",
+    alternates: { canonical: "/suche" },
+    openGraph: {
+      type: "website",
+      title: q ? `Suche: ${q}` : "Suche",
+      description: "Artikel auf motorrad.news durchsuchen.",
+    },
   };
 }
 

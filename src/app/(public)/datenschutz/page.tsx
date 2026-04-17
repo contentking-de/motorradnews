@@ -6,6 +6,12 @@ export const metadata: Metadata = {
   title: "Datenschutzerklärung",
   description:
     "Datenschutzerklärung der motorrad.news – Arider GmbH & Co. KG",
+  alternates: { canonical: "/datenschutz" },
+  openGraph: {
+    type: "website",
+    title: "Datenschutzerklärung",
+    description: "Datenschutzerklärung der motorrad.news – Arider GmbH & Co. KG",
+  },
 };
 
 export default function DatenschutzPage() {

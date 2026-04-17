@@ -18,6 +18,22 @@ export const metadata: Metadata = {
   title: {
     absolute: "motorrad.news – Motorrad-Nachrichten & Tests",
   },
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    title: "motorrad.news – Motorrad-Nachrichten & Tests",
+    description:
+      "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
+    url: "https://www.motorrad.news",
+    siteName: "motorrad.news",
+    locale: "de_DE",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "motorrad.news – Motorrad-Nachrichten & Tests",
+    description:
+      "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
+  },
 };
 
 export const revalidate = 60;

@@ -29,9 +29,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!d) return { title: "Händler" };
 
+  const title = `${d.name} – Arider Händler in ${d.city}`;
+  const description = `${d.name} – Autorisierter ${d.brand}-Händler in ${d.zip ? `${d.zip} ` : ""}${d.city}.${d.street ? ` Adresse: ${d.street}.` : ""}`;
+
   return {
-    title: `${d.name} – Arider Händler in ${d.city}`,
-    description: `${d.name} – Autorisierter ${d.brand}-Händler in ${d.zip ? `${d.zip} ` : ""}${d.city}.${d.street ? ` Adresse: ${d.street}.` : ""}`,
+    title,
+    description,
+    alternates: { canonical: `/arider-haendler/${slug}` },
+    openGraph: {
+      type: "website",
+      title,
+      description,
+    },
   };
 }
 
