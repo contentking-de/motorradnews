@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, Ticket, ExternalLink } from "lucide-react";
@@ -43,7 +42,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: ev.title,
       description: extractPlainText(ev.description).slice(0, 160),
       url: `/termine-events/${slug}`,
-      ...(ev.coverImageUrl ? { images: [{ url: ev.coverImageUrl }] } : {}),
     },
   };
 }
@@ -68,7 +66,6 @@ export default async function EventDetailPage({ params }: Props) {
     ...(endIso ? { endDate: endIso } : {}),
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    ...(ev.coverImageUrl ? { image: ev.coverImageUrl } : {}),
     location: {
       "@type": "Place",
       name: ev.venueName,
@@ -103,23 +100,8 @@ export default async function EventDetailPage({ params }: Props) {
       />
 
       <article className="flex flex-1 flex-col text-[#111111]">
-        <section className="relative min-h-[min(50vh,400px)] w-full overflow-hidden bg-[#111111]">
-          {ev.coverImageUrl ? (
-            <Image
-              src={ev.coverImageUrl}
-              alt={ev.title}
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-              unoptimized
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] to-[#111111]" aria-hidden />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" aria-hidden />
-
-          <div className="relative z-10 flex min-h-[min(50vh,400px)] flex-col justify-end px-4 pb-10 pt-24 sm:px-6 sm:pb-12 lg:mx-auto lg:max-w-7xl lg:px-8 lg:pb-16">
+        <section className="w-full bg-[#111111]">
+          <div className="px-4 pb-10 pt-24 sm:px-6 sm:pb-12 lg:mx-auto lg:max-w-7xl lg:px-8 lg:pb-16">
             <nav className="mb-6 text-sm text-white/70" aria-label="Brotkrumen">
               <ol className="flex flex-wrap items-center gap-2">
                 <li>
@@ -145,7 +127,9 @@ export default async function EventDetailPage({ params }: Props) {
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="size-4" />
                 {formatDate(ev.startDate)}
-                {ev.endDate ? ` – ${formatDate(ev.endDate)}` : ""}
+                {ev.endDate && ev.endDate.getTime() !== ev.startDate.getTime()
+                  ? ` – ${formatDate(ev.endDate)}`
+                  : ""}
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="size-4" />
@@ -172,7 +156,7 @@ export default async function EventDetailPage({ params }: Props) {
                   <CalendarDays className="mt-0.5 size-4 shrink-0 text-[#E31E24]" />
                   <span>
                     {formatDate(ev.startDate)}
-                    {ev.endDate ? (
+                    {ev.endDate && ev.endDate.getTime() !== ev.startDate.getTime() ? (
                       <>
                         <br />
                         bis {formatDate(ev.endDate)}
