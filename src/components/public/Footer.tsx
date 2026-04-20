@@ -42,6 +42,15 @@ export function Footer() {
             </svg>
             Twitter/X
           </a>
+          <a
+            href="/feed.xml"
+            className="inline-flex items-center gap-1.5 text-white/80 transition-colors hover:text-white"
+          >
+            <svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M3.429 5.1v2.743a12.732 12.732 0 0 1 12.728 12.728h2.743A15.477 15.477 0 0 0 3.43 5.1ZM3.429 10.586v2.743a7.246 7.246 0 0 1 7.242 7.242h2.743c0-5.508-4.477-9.985-9.985-9.985ZM6.172 17.143a2.743 2.743 0 1 1-5.486 0 2.743 2.743 0 0 1 5.486 0Z" />
+            </svg>
+            RSS-Feed
+          </a>
         </nav>
       </div>
     </footer>
