@@ -70,7 +70,7 @@ export async function notifyUrlDeleted(url: string) {
   return notifyGoogle(url, "URL_DELETED");
 }
 
-const BASE_URL = "https://motorrad.news";
+const BASE_URL = "https://www.motorrad.news";
 
 export function buildArticleUrl(categorySlug: string, articleSlug: string) {
   return `${BASE_URL}/${categorySlug}/${articleSlug}`;
