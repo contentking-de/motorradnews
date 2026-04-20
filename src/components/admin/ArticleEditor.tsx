@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { resizeImageClient } from "@/lib/resize-image-client";
 
 function parseContent(json: string): string | Record<string, unknown> {
   if (!json || json.trim() === "") {
@@ -129,8 +130,9 @@ export function ArticleEditor({ content, onChange, className }: ArticleEditorPro
 
       setImageUploading(true);
       try {
+        const resized = await resizeImageClient(file);
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", resized);
 
         const res = await fetch("/api/upload", {
           method: "POST",

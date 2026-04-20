@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { ImagePlus, Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { resizeImageClient } from "@/lib/resize-image-client";
 import Button from "@/components/ui/Button";
 
 interface ImageUploaderProps {
@@ -30,8 +31,9 @@ export function ImageUploader({
     setUploading(true);
 
     try {
+      const resized = await resizeImageClient(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", resized);
 
       const res = await fetch("/api/upload", {
         method: "POST",
