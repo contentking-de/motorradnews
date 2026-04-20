@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleGrid } from "@/components/public/ArticleGrid";
 import { CategoryNav } from "@/components/public/CategoryNav";
+import { categoryMetaBySlug } from "@/lib/category-meta";
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
@@ -13,9 +14,6 @@ export const revalidate = 60;
 type Props = Readonly<{
   params: Promise<{ category: string }>;
 }>;
-
-const defaultDescription =
-  "Motorrad-Nachrichten, Tests und Hintergründe auf motorrad.news.";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category: slug } = await params;
@@ -29,14 +27,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "Kategorie" };
   }
 
+  const seoMeta = categoryMetaBySlug[slug];
+  const title = seoMeta?.metaTitle || `${row.name}: News, Tests & Berichte`;
+  const description =
+    seoMeta?.metaDescription ||
+    row.description?.trim() ||
+    `Alle Artikel zum Thema ${row.name}: aktuelle News, Tests und Hintergründe auf motorrad.news.`;
+
   return {
-    title: row.name,
-    description: row.description?.trim() || `${row.name} – ${defaultDescription}`,
+    title,
+    description,
     alternates: { canonical: `/${slug}` },
     openGraph: {
       type: "website",
-      title: row.name,
-      description: row.description?.trim() || `${row.name} – ${defaultDescription}`,
+      title,
+      description,
       url: `/${slug}`,
     },
   };
