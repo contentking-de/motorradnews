@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { notifyUrlUpdated, notifyUrlDeleted, buildArticleUrl } from "@/lib/google-indexing";
 import { eq } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
@@ -131,7 +132,9 @@ export async function PUT(
     const newStatus = patch.status ?? existing.status;
     let publishedAt = existing.publishedAt;
 
-    if (newStatus === "PUBLISHED" && !publishedAt) {
+    const isNewlyPublished = newStatus === "PUBLISHED" && !publishedAt;
+
+    if (isNewlyPublished) {
       publishedAt = now;
     }
 
@@ -165,6 +168,26 @@ export async function PUT(
 
     if (!row) {
       return NextResponse.json({ error: "Artikel nicht gefunden" }, { status: 404 });
+    }
+
+    if (isNewlyPublished || (newStatus === "PUBLISHED" && existing.status === "PUBLISHED")) {
+      const [catRow] = await db
+        .select({ slug: categories.slug })
+        .from(categories)
+        .where(eq(categories.id, row.article.categoryId))
+        .limit(1);
+      if (catRow) {
+        notifyUrlUpdated(buildArticleUrl(catRow.slug, row.article.slug));
+      }
+    } else if (existing.status === "PUBLISHED" && newStatus !== "PUBLISHED") {
+      const [catRow] = await db
+        .select({ slug: categories.slug })
+        .from(categories)
+        .where(eq(categories.id, row.article.categoryId))
+        .limit(1);
+      if (catRow) {
+        notifyUrlDeleted(buildArticleUrl(catRow.slug, row.article.slug));
+      }
     }
 
     return NextResponse.json(mapArticleRow(row));
@@ -207,6 +230,17 @@ export async function DELETE(
     }
 
     await db.delete(articles).where(eq(articles.id, id));
+
+    if (existing.status === "PUBLISHED") {
+      const [catRow] = await db
+        .select({ slug: categories.slug })
+        .from(categories)
+        .where(eq(categories.id, existing.categoryId))
+        .limit(1);
+      if (catRow) {
+        notifyUrlDeleted(buildArticleUrl(catRow.slug, existing.slug));
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (e) {

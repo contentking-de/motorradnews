@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { notifyUrlUpdated, buildArticleUrl } from "@/lib/google-indexing";
 import { eq, desc, and, ilike, count } from "drizzle-orm";
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
@@ -191,6 +192,17 @@ export async function POST(request: NextRequest) {
 
     if (!row) {
       return NextResponse.json(inserted);
+    }
+
+    if (data.status === "PUBLISHED") {
+      const [catRow] = await db
+        .select({ slug: categories.slug })
+        .from(categories)
+        .where(eq(categories.id, data.categoryId))
+        .limit(1);
+      if (catRow) {
+        notifyUrlUpdated(buildArticleUrl(catRow.slug, inserted.slug));
+      }
     }
 
     return NextResponse.json(mapArticleRow(row), { status: 201 });
