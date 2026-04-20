@@ -9,13 +9,15 @@ import { and, asc, desc, eq, gte, lt, isNotNull } from "drizzle-orm";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Termine & Events",
-  description: "Motorrad-Termine, Events und Veranstaltungen",
+  title: "Motorrad-Termine & Events: Messen, Treffen & Ausfahrten",
+  description:
+    "Alle Motorrad-Termine auf einen Blick: Messen, Treffen, Ausfahrten und Festivals in Deutschland und Europa. Finde Events in deiner Nähe auf motorrad.news.",
   alternates: { canonical: "/termine-events" },
   openGraph: {
     type: "website",
-    title: "Termine & Events",
-    description: "Motorrad-Termine, Events und Veranstaltungen",
+    title: "Motorrad-Termine & Events: Messen, Treffen & Ausfahrten",
+    description:
+      "Alle Motorrad-Termine auf einen Blick: Messen, Treffen, Ausfahrten und Festivals in Deutschland und Europa. Finde Events in deiner Nähe auf motorrad.news.",
     url: "/termine-events",
   },
 };
@@ -75,6 +77,9 @@ export default async function EventsListingPage() {
           Termine &amp; Events
         </h1>
       </div>
+      <p className="mt-3 max-w-3xl text-base leading-relaxed text-[#666666] md:text-lg">
+        Messen, Treffen, Ausfahrten und Festivals – alle wichtigen Motorrad-Termine auf einen Blick. Finde Events in deiner Nähe oder plane deine nächste Biker-Reise.
+      </p>
 
       <EventList
         upcomingEvents={serialize(upcomingRaw)}
