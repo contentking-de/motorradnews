@@ -9,8 +9,9 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      "https://motorrad.news/sitemap.xml",
-      "https://motorrad.news/sitemap_haendler.xml",
+      "https://www.motorrad.news/sitemap.xml",
+      "https://www.motorrad.news/sitemap_haendler.xml",
+      "https://www.motorrad.news/sitemap-termine.xml",
     ],
   };
 }
