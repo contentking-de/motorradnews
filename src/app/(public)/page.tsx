@@ -16,12 +16,12 @@ import { sortByPrioritySlugs } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "motorrad.news – Motorrad-Nachrichten & Tests",
+    absolute: "Motorrad News, Nachrichten & Termine - motorrad.news",
   },
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
-    title: "motorrad.news – Motorrad-Nachrichten & Tests",
+    title: "Motorrad News, Nachrichten & Termine - motorrad.news",
     description:
       "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
     url: "https://www.motorrad.news",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "motorrad.news – Motorrad-Nachrichten & Tests",
+    title: "Motorrad News, Nachrichten & Termine - motorrad.news",
     description:
       "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
   },
