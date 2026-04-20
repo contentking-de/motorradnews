@@ -133,7 +133,9 @@ export default async function EventDetailPage({ params }: Props) {
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <MapPin className="size-4" />
-                {ev.venueName}, {ev.venueCity}
+                {ev.venueName && ev.venueName.toLowerCase() !== ev.venueCity?.toLowerCase()
+                  ? `${ev.venueName}, ${ev.venueCity}`
+                  : ev.venueCity}
               </span>
             </div>
           </div>
@@ -177,10 +179,18 @@ export default async function EventDetailPage({ params }: Props) {
                     itemType="https://schema.org/PostalAddress"
                     itemProp="address"
                   >
-                    <strong itemProp="name">{ev.venueName}</strong>
-                    <br />
-                    <span itemProp="streetAddress">{ev.venueAddress}</span>
-                    <br />
+                    {ev.venueName && ev.venueName.toLowerCase() !== ev.venueCity?.toLowerCase() && (
+                      <>
+                        <strong itemProp="name">{ev.venueName}</strong>
+                        <br />
+                      </>
+                    )}
+                    {ev.venueAddress && (
+                      <>
+                        <span itemProp="streetAddress">{ev.venueAddress}</span>
+                        <br />
+                      </>
+                    )}
                     <span itemProp="addressLocality">{ev.venueCity}</span>,{" "}
                     <span itemProp="addressCountry">{ev.venueCountry}</span>
                   </span>

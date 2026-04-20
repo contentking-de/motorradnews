@@ -59,7 +59,10 @@ function EventRow({ ev }: { ev: SerializedEvent }) {
           </span>
           <span className="inline-flex items-center gap-1">
             <MapPin className="size-3.5 shrink-0" />
-            {ev.venueCity}{ev.venueCountry !== "Deutschland" ? `, ${ev.venueCountry}` : ""}
+            {ev.venueName && ev.venueName.toLowerCase() !== ev.venueCity?.toLowerCase()
+              ? `${ev.venueName}, ${ev.venueCity}`
+              : ev.venueCity}
+            {ev.venueCountry !== "Deutschland" ? `, ${ev.venueCountry}` : ""}
           </span>
         </div>
       </div>
