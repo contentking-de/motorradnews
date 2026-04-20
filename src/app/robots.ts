@@ -8,6 +8,9 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: "https://motorrad.news/sitemap.xml",
+    sitemap: [
+      "https://motorrad.news/sitemap.xml",
+      "https://motorrad.news/sitemap_haendler.xml",
+    ],
   };
 }
