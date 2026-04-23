@@ -311,7 +311,7 @@ async function main() {
     .insert(users)
     .values({
       name: "Admin",
-      email: "admin@motorrad.news",
+      email: "user@deinedomain.com",
       passwordHash,
       role: "ADMIN",
       avatarUrl: null,
