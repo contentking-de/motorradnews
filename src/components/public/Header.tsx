@@ -75,14 +75,14 @@ export function Header({ categories }: HeaderProps) {
             href="/termine-events"
             className="inline-flex items-center gap-1.5 transition-colors hover:text-[#E31E24]"
           >
-            <CalendarDays className="size-4" aria-hidden />
+            <CalendarDays className="size-4 text-[#E31E24]" aria-hidden />
             Events
           </Link>
           <Link
             href="/motorradhaendler"
             className="inline-flex items-center gap-1.5 transition-colors hover:text-[#E31E24]"
           >
-            <Store className="size-4" aria-hidden />
+            <Store className="size-4 text-[#E31E24]" aria-hidden />
             Händler
           </Link>
         </nav>
@@ -184,7 +184,7 @@ export function Header({ categories }: HeaderProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[#111111] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
             onClick={() => setMenuOpen(false)}
           >
-            <CalendarDays className="size-4" aria-hidden />
+            <CalendarDays className="size-4 text-[#E31E24]" aria-hidden />
             Events
           </Link>
           <Link
@@ -192,7 +192,7 @@ export function Header({ categories }: HeaderProps) {
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[#111111] hover:bg-[#F9F9F9] hover:text-[#E31E24]"
             onClick={() => setMenuOpen(false)}
           >
-            <Store className="size-4" aria-hidden />
+            <Store className="size-4 text-[#E31E24]" aria-hidden />
             Händler
           </Link>
         </nav>
