@@ -120,8 +120,31 @@ export default async function HomePage() {
 
   const hasAnyArticles = categorySections.some((s) => s.articles.length > 0);
 
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "motorrad.news",
+    url: "https://www.motorrad.news",
+    logo: "https://www.motorrad.news/motorrad_news_logo.png",
+    description:
+      "Das Motorrad-Nachrichtenportal: Neuheiten, Tests, Technik, Reisen und Motorsport.",
+    parentOrganization: {
+      "@type": "Organization",
+      name: "Arider GmbH",
+      url: "https://www.arider.com",
+    },
+    sameAs: [
+      "https://www.facebook.com/profile.php?id=61568992082136",
+      "https://x.com/DE_motorradnews",
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       {heroArticle && <HeroArticle article={heroArticle} />}
       <CategoryNav categories={categoryNavItems} />
 
