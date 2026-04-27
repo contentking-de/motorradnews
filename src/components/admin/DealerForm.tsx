@@ -59,9 +59,20 @@ export function DealerForm({ dealer }: DealerFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const buildSlug = (n: string, z: string) => {
+    const base = slugify(n);
+    const suffix = z.trim();
+    return suffix ? `${base}-${suffix}` : base;
+  };
+
   const onNameChange = (v: string) => {
     setName(v);
-    if (!slugTouchedRef.current) setSlug(slugify(v));
+    if (!slugTouchedRef.current) setSlug(buildSlug(v, zip));
+  };
+
+  const onZipChange = (v: string) => {
+    setZip(v);
+    if (!slugTouchedRef.current) setSlug(buildSlug(name, v));
   };
 
   const onSlugChange = (v: string) => {
@@ -201,7 +212,7 @@ export function DealerForm({ dealer }: DealerFormProps) {
             id="dealer-zip"
             label="PLZ (optional)"
             value={zip}
-            onChange={(e) => setZip(e.target.value)}
+            onChange={(e) => onZipChange(e.target.value)}
             maxLength={10}
           />
           <div className="sm:col-span-2">

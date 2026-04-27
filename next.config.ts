@@ -22,6 +22,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/motorradhaendler/homeland-custom",
+        destination: "/motorradhaendler/homeland-custom-79733",
+        permanent: true,
+      },
+      {
         source: "/messen-events",
         destination: "/termine-events",
         permanent: true,

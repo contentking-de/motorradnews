@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       .insert(dealers)
       .values({
         name: data.name,
-        slug: data.slug || slugify(data.name),
+        slug: data.slug || (data.zip ? `${slugify(data.name)}-${data.zip}` : slugify(data.name)),
         brand: data.brand,
         street: data.street || null,
         zip: data.zip || null,

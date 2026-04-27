@@ -96,18 +96,35 @@ export async function POST(request: NextRequest) {
   for (const row of rows) {
     try {
       const normalizedBrand = normalizeBrands(row.brand);
+      const zipNorm = row.zip ? String(row.zip).padStart(5, "0") : null;
 
-      let slug = slugify(row.name);
+      const basePart = slugify(row.name);
+      const suffix = zipNorm ?? row.city.toLowerCase().replace(/\s+/g, "-");
+      const slug = `${basePart}-${suffix}`;
+
       const [existing] = await db
         .select({ id: dealers.id })
         .from(dealers)
         .where(eq(dealers.slug, slug))
         .limit(1);
+
       if (existing) {
-        const zipPart = row.zip
-          ? String(row.zip).padStart(5, "0")
-          : row.city.toLowerCase().replace(/\s+/g, "-");
-        slug = `${slug}-${zipPart}`;
+        await db
+          .update(dealers)
+          .set({
+            name: row.name,
+            brand: normalizedBrand,
+            street: row.street || null,
+            zip: zipNorm,
+            city: row.city,
+            phone: row.phone || null,
+            email: row.email || null,
+            website: row.website || null,
+            updatedAt: new Date(),
+          })
+          .where(eq(dealers.id, existing.id));
+        imported++;
+        continue;
       }
 
       await db.insert(dealers).values({
@@ -115,7 +132,7 @@ export async function POST(request: NextRequest) {
         slug,
         brand: normalizedBrand,
         street: row.street || null,
-        zip: row.zip ? String(row.zip).padStart(5, "0") : null,
+        zip: zipNorm,
         city: row.city,
         phone: row.phone || null,
         email: row.email || null,
