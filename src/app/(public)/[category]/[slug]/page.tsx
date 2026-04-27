@@ -115,6 +115,8 @@ export default async function ArticlePage({ params }: Props) {
   const dateIso = publishedAt instanceof Date ? publishedAt.toISOString() : new Date(publishedAt).toISOString();
   const modifiedIso = article.updatedAt instanceof Date ? article.updatedAt.toISOString() : new Date(article.updatedAt).toISOString();
 
+  const articleUrl = `https://www.motorrad.news/${category.slug}/${slug}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -125,7 +127,7 @@ export default async function ArticlePage({ params }: Props) {
     dateModified: modifiedIso,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://www.motorrad.news/${category.slug}/${slug}`,
+      "@id": articleUrl,
     },
     author: {
       "@type": "Person",
@@ -141,11 +143,40 @@ export default async function ArticlePage({ params }: Props) {
     articleSection: category.name,
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Startseite",
+        item: "https://www.motorrad.news",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: category.name,
+        item: `https://www.motorrad.news/${category.slug}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: article.title,
+        item: articleUrl,
+      },
+    ],
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <article className="flex flex-1 flex-col text-[#111111]">
@@ -245,6 +276,32 @@ export default async function ArticlePage({ params }: Props) {
           <div className="prose prose-lg mx-auto max-w-3xl text-[#111111] lg:mx-0">
             <ArticleBody content={article.body} />
           </div>
+
+          <nav
+            className="mx-auto mt-10 max-w-3xl border-t border-[#E5E5E5] pt-6 text-sm text-[#666666] lg:mx-0"
+            aria-label="Breadcrumb"
+          >
+            <ol className="flex flex-wrap items-center gap-1.5">
+              <li>
+                <Link href="/" className="transition-colors hover:text-[#E31E24]">
+                  Startseite
+                </Link>
+              </li>
+              <li aria-hidden className="text-[#CCCCCC]">/</li>
+              <li>
+                <Link
+                  href={`/${category.slug}`}
+                  className="transition-colors hover:text-[#E31E24]"
+                >
+                  {category.name}
+                </Link>
+              </li>
+              <li aria-hidden className="text-[#CCCCCC]">/</li>
+              <li className="truncate text-[#111111]" aria-current="page">
+                {article.title}
+              </li>
+            </ol>
+          </nav>
         </div>
 
         <aside className="mt-10 shrink-0 lg:mt-0 lg:w-64 xl:w-72" aria-label="Sidebar">
