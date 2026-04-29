@@ -69,10 +69,10 @@ function IndexingBadge({
     return (
       <span
         className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-display font-semibold text-green-800"
-        title={`Indexiert am ${formatDateShort(googleIndexedAt)}`}
+        title={`An Google gemeldet am ${formatDateShort(googleIndexedAt)}`}
       >
         <Globe className="size-3" aria-hidden />
-        Indexiert
+        API OK
       </span>
     );
   }
