@@ -9,6 +9,7 @@ import { db } from "@/db";
 import { articles, categories, users } from "@/db/schema";
 import { formatDate } from "@/lib/utils";
 import { mapRowToPublicArticle } from "@/lib/map-public-article";
+import { findRelatedByTitle } from "@/lib/related-articles";
 import { and, asc, count, desc, eq, isNotNull, ne } from "drizzle-orm";
 import { UpcomingEventsSidebar } from "@/components/public/UpcomingEventsSidebar";
 import { PresseSidebar } from "@/components/public/PresseSidebar";
@@ -79,7 +80,7 @@ export default async function ArticlePage({ params }: Props) {
   const category = row.categories;
   const author = row.users;
 
-  const [relatedRows, allCategories] = await Promise.all([
+  const [relatedRows, allCategories, titleRelated] = await Promise.all([
     db
       .select()
       .from(articles)
@@ -109,9 +110,12 @@ export default async function ArticlePage({ params }: Props) {
       )
       .groupBy(categories.name, categories.slug, categories.sortOrder)
       .orderBy(asc(categories.sortOrder)),
+    findRelatedByTitle(article.id, article.title),
   ]);
 
   const relatedArticles = relatedRows.map(mapRowToPublicArticle);
+  const titleRelatedSlugs = new Set(titleRelated.map((a) => a.slug));
+  const filteredRelated = relatedArticles.filter((a) => !titleRelatedSlugs.has(a.slug));
   const dateIso = publishedAt instanceof Date ? publishedAt.toISOString() : new Date(publishedAt).toISOString();
   const modifiedIso = article.updatedAt instanceof Date ? article.updatedAt.toISOString() : new Date(article.updatedAt).toISOString();
 
@@ -336,13 +340,13 @@ export default async function ArticlePage({ params }: Props) {
               </ul>
             </div>
 
-            {relatedArticles.length > 0 ? (
+            {filteredRelated.length > 0 ? (
               <div>
                 <h2 className="font-display text-base font-bold uppercase tracking-wide text-[#111111]">
                   Neueste aus {category.name}
                 </h2>
                 <ul className="mt-4 space-y-4 border-t border-[#E5E5E5] pt-4">
-                  {relatedArticles.map((a) => (
+                  {filteredRelated.map((a) => (
                     <li key={a.slug}>
                       <Link href={`/${a.categorySlug}/${a.slug}`} className="group flex gap-3">
                         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md bg-[#F9F9F9]">
@@ -384,7 +388,28 @@ export default async function ArticlePage({ params }: Props) {
         </aside>
       </div>
 
-      {relatedArticles.length > 0 ? (
+      {titleRelated.length > 0 ? (
+        <section
+          className="border-t border-[#E5E5E5] bg-white py-12 sm:py-16"
+          aria-labelledby="title-related-heading"
+        >
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <h2
+              id="title-related-heading"
+              className="font-display text-2xl font-bold tracking-tight text-[#111111] md:text-3xl"
+            >
+              Weitere interessante Artikel zum Thema
+            </h2>
+            <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {titleRelated.map((a) => (
+                <ArticleCard key={a.slug} article={a} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {filteredRelated.length > 0 ? (
         <section
           className="border-t border-[#E5E5E5] bg-[#F9F9F9] py-12 sm:py-16"
           aria-labelledby="related-heading"
@@ -397,7 +422,7 @@ export default async function ArticlePage({ params }: Props) {
               Ähnliche Artikel
             </h2>
             <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {relatedArticles.map((a) => (
+              {filteredRelated.map((a) => (
                 <ArticleCard key={a.slug} article={a} />
               ))}
             </div>
