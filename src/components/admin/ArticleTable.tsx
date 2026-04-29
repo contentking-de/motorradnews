@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Archive, Pencil, Trash2 } from "lucide-react";
+import { Archive, Pencil, Trash2, Globe, AlertTriangle } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { cn, formatDateShort } from "@/lib/utils";
@@ -15,6 +15,8 @@ export type AdminArticleRow = {
   categoryName: string;
   authorName: string;
   publishedAt: string | null;
+  googleIndexedAt: string | null;
+  googleIndexingError: string | null;
   createdAt: string;
 };
 
@@ -42,6 +44,45 @@ function statusLabel(status: AdminArticleRow["status"]): string {
     default:
       return status;
   }
+}
+
+function IndexingBadge({
+  status,
+  googleIndexedAt,
+  googleIndexingError,
+}: Pick<AdminArticleRow, "status" | "googleIndexedAt" | "googleIndexingError">) {
+  if (status !== "PUBLISHED") return null;
+
+  if (googleIndexingError) {
+    return (
+      <span
+        className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-display font-semibold text-red-800"
+        title={`Fehler: ${googleIndexingError}`}
+      >
+        <AlertTriangle className="size-3" aria-hidden />
+        Fehler
+      </span>
+    );
+  }
+
+  if (googleIndexedAt) {
+    return (
+      <span
+        className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-display font-semibold text-green-800"
+        title={`Indexiert am ${formatDateShort(googleIndexedAt)}`}
+      >
+        <Globe className="size-3" aria-hidden />
+        Indexiert
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-[#F9F9F9] px-2 py-0.5 text-xs font-display font-semibold text-[#666666]">
+      <Globe className="size-3" aria-hidden />
+      Ausstehend
+    </span>
+  );
 }
 
 export default function ArticleTable({ articles, onRefresh }: ArticleTableProps) {
@@ -117,6 +158,9 @@ export default function ArticleTable({ articles, onRefresh }: ArticleTableProps)
                 Status
               </th>
               <th className="font-display px-4 py-3 font-semibold text-[#111111]">
+                Google
+              </th>
+              <th className="font-display px-4 py-3 font-semibold text-[#111111]">
                 Autor
               </th>
               <th className="font-display px-4 py-3 font-semibold text-[#111111]">
@@ -156,6 +200,13 @@ export default function ArticleTable({ articles, onRefresh }: ArticleTableProps)
                     <Badge variant={statusBadgeVariant(article.status)}>
                       {statusLabel(article.status)}
                     </Badge>
+                  </td>
+                  <td className="px-4 py-3">
+                    <IndexingBadge
+                      status={article.status}
+                      googleIndexedAt={article.googleIndexedAt}
+                      googleIndexingError={article.googleIndexingError}
+                    />
                   </td>
                   <td className="px-4 py-3 text-[#666666]">
                     {article.authorName}
@@ -232,9 +283,16 @@ export default function ArticleTable({ articles, onRefresh }: ArticleTableProps)
                   <span>{article.authorName}</span>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Badge variant={statusBadgeVariant(article.status)}>
-                    {statusLabel(article.status)}
-                  </Badge>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant={statusBadgeVariant(article.status)}>
+                      {statusLabel(article.status)}
+                    </Badge>
+                    <IndexingBadge
+                      status={article.status}
+                      googleIndexedAt={article.googleIndexedAt}
+                      googleIndexingError={article.googleIndexingError}
+                    />
+                  </div>
                   <span className="text-sm tabular-nums text-[#666666]">
                     Veröffentlicht: {published}
                   </span>

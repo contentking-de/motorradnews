@@ -1,4 +1,7 @@
 import { GoogleAuth } from "google-auth-library";
+import { db } from "@/db";
+import { articles } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 const INDEXING_API_URL =
   "https://indexing.googleapis.com/v3/urlNotifications:publish";
@@ -6,6 +9,12 @@ const INDEXING_API_URL =
 const SCOPES = ["https://www.googleapis.com/auth/indexing"];
 
 type NotificationType = "URL_UPDATED" | "URL_DELETED";
+
+export type IndexingResult = {
+  success: boolean;
+  status?: number;
+  error?: string;
+};
 
 let authClient: GoogleAuth | null = null;
 
@@ -36,7 +45,7 @@ function getAuthClient(): GoogleAuth | null {
 async function notifyGoogle(
   url: string,
   type: NotificationType
-): Promise<{ success: boolean; status?: number; error?: string }> {
+): Promise<IndexingResult> {
   const auth = getAuthClient();
   if (!auth) {
     return { success: false, error: "Indexing API nicht konfiguriert" };
@@ -62,12 +71,50 @@ async function notifyGoogle(
   }
 }
 
-export async function notifyUrlUpdated(url: string) {
-  return notifyGoogle(url, "URL_UPDATED");
+/**
+ * Notify Google that a URL was updated, persist the result in the DB.
+ */
+export async function notifyUrlUpdated(
+  url: string,
+  articleId?: string
+): Promise<IndexingResult> {
+  const result = await notifyGoogle(url, "URL_UPDATED");
+
+  if (articleId) {
+    await db
+      .update(articles)
+      .set(
+        result.success
+          ? { googleIndexedAt: new Date(), googleIndexingError: null }
+          : { googleIndexingError: result.error ?? "Unbekannter Fehler" }
+      )
+      .where(eq(articles.id, articleId));
+  }
+
+  return result;
 }
 
-export async function notifyUrlDeleted(url: string) {
-  return notifyGoogle(url, "URL_DELETED");
+/**
+ * Notify Google that a URL was deleted, persist the result in the DB.
+ */
+export async function notifyUrlDeleted(
+  url: string,
+  articleId?: string
+): Promise<IndexingResult> {
+  const result = await notifyGoogle(url, "URL_DELETED");
+
+  if (articleId) {
+    await db
+      .update(articles)
+      .set(
+        result.success
+          ? { googleIndexedAt: null, googleIndexingError: null }
+          : { googleIndexingError: result.error ?? "Unbekannter Fehler" }
+      )
+      .where(eq(articles.id, articleId));
+  }
+
+  return result;
 }
 
 const BASE_URL = "https://www.motorrad.news";

@@ -35,6 +35,8 @@ function mapArticleRow(row: {
     authorId: a.authorId,
     status: a.status,
     publishedAt: a.publishedAt,
+    googleIndexedAt: a.googleIndexedAt,
+    googleIndexingError: a.googleIndexingError,
     createdAt: a.createdAt,
     updatedAt: a.updatedAt,
     categoryName: row.categoryName,
@@ -201,11 +203,26 @@ export async function POST(request: NextRequest) {
         .where(eq(categories.id, data.categoryId))
         .limit(1);
       if (catRow) {
-        notifyUrlUpdated(buildArticleUrl(catRow.slug, inserted.slug));
+        await notifyUrlUpdated(
+          buildArticleUrl(catRow.slug, inserted.slug),
+          inserted.id
+        );
       }
     }
 
-    return NextResponse.json(mapArticleRow(row), { status: 201 });
+    const [fresh] = await db
+      .select({
+        article: articles,
+        categoryName: categories.name,
+        authorName: users.name,
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .innerJoin(users, eq(articles.authorId, users.id))
+      .where(eq(articles.id, inserted.id))
+      .limit(1);
+
+    return NextResponse.json(mapArticleRow(fresh ?? row), { status: 201 });
   } catch (e) {
     console.error(e);
     return NextResponse.json(

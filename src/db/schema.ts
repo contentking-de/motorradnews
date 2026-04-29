@@ -54,6 +54,8 @@ export const articles = pgTable("articles", {
     .references(() => users.id),
   status: articleStatusEnum("status").notNull().default("DRAFT"),
   publishedAt: timestamp("published_at"),
+  googleIndexedAt: timestamp("google_indexed_at"),
+  googleIndexingError: text("google_indexing_error"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -35,6 +35,8 @@ function mapArticleRow(row: {
     authorId: a.authorId,
     status: a.status,
     publishedAt: a.publishedAt,
+    googleIndexedAt: a.googleIndexedAt,
+    googleIndexingError: a.googleIndexingError,
     createdAt: a.createdAt,
     updatedAt: a.updatedAt,
     categoryName: row.categoryName,
@@ -177,7 +179,10 @@ export async function PUT(
         .where(eq(categories.id, row.article.categoryId))
         .limit(1);
       if (catRow) {
-        notifyUrlUpdated(buildArticleUrl(catRow.slug, row.article.slug));
+        await notifyUrlUpdated(
+          buildArticleUrl(catRow.slug, row.article.slug),
+          id
+        );
       }
     } else if (existing.status === "PUBLISHED" && newStatus !== "PUBLISHED") {
       const [catRow] = await db
@@ -186,11 +191,26 @@ export async function PUT(
         .where(eq(categories.id, row.article.categoryId))
         .limit(1);
       if (catRow) {
-        notifyUrlDeleted(buildArticleUrl(catRow.slug, row.article.slug));
+        await notifyUrlDeleted(
+          buildArticleUrl(catRow.slug, row.article.slug),
+          id
+        );
       }
     }
 
-    return NextResponse.json(mapArticleRow(row));
+    const [freshRow] = await db
+      .select({
+        article: articles,
+        categoryName: categories.name,
+        authorName: users.name,
+      })
+      .from(articles)
+      .innerJoin(categories, eq(articles.categoryId, categories.id))
+      .innerJoin(users, eq(articles.authorId, users.id))
+      .where(eq(articles.id, id))
+      .limit(1);
+
+    return NextResponse.json(mapArticleRow(freshRow ?? row));
   } catch (e) {
     console.error(e);
     return NextResponse.json(
@@ -238,7 +258,7 @@ export async function DELETE(
         .where(eq(categories.id, existing.categoryId))
         .limit(1);
       if (catRow) {
-        notifyUrlDeleted(buildArticleUrl(catRow.slug, existing.slug));
+        await notifyUrlDeleted(buildArticleUrl(catRow.slug, existing.slug));
       }
     }
 
